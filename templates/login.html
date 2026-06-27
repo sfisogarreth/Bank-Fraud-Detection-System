@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}MAZI AI - Secure Login{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h2>MAZI Fraud AI Gate</h2>
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" class="form-control" placeholder="operator@mazi.ai" required>
+            </div>
+            <div class="form-group">
+                <label>Security Password</label>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-primary">Authenticate</button>
+        </form>
+        <div class="auth-footer">
+            Unauthorized access is logged. <a href="/signup">Request Access</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
