@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}MAZI AI - Operator Clearance Request{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--bg-base); display: flex; align-items: center; justify-content: center; z-index: 1000; overflow-y: auto; padding: 20px;">
+    
+    <div style="position: absolute; top: 24px; left: 24px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary);">
+        <span style="height: 8px; width: 8px; background-color: var(--accent-orange); border-radius: 50%; box-shadow: 0 0 8px var(--accent-orange);"></span>
+        Authorization Node: Awaiting Input
+    </div>
+
+    <div class="auth-card" style="background-color: var(--bg-surface); padding: 40px; border-radius: 12px; border: 1px solid var(--bg-border); width: 100%; max-width: 460px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        
+        <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.5px;">Operator Clearance Request</h1>
+            <p style="color: var(--text-secondary); font-size: 14px;">Register for MAZI AI System Access</p>
+        </div>
+
+        <form action="/signup" method="POST">
+            
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">Legal Name / Operator Alias</label>
+                <input type="text" name="name" class="form-control" placeholder="e.g., Garethor Sfiso" required style="width: 100%; padding: 12px 16px; background-color: var(--bg-base); border: 1px solid var(--bg-border); border-radius: 6px; color: var(--text-primary); font-size: 14px; outline: none; transition: border-color 0.2s;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">Corporate Identity (Email)</label>
+                <input type="email" name="email" class="form-control" placeholder="operator@mazi.ai" required style="width: 100%; padding: 12px 16px; background-color: var(--bg-base); border: 1px solid var(--bg-border); border-radius: 6px; color: var(--text-primary); font-size: 14px; outline: none; transition: border-color 0.2s;">
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 28px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">Secure Passphrase</label>
+                <input type="password" name="password" class="form-control" placeholder="••••••••••••" required style="width: 100%; padding: 12px 16px; background-color: var(--bg-base); border: 1px solid var(--bg-border); border-radius: 6px; color: var(--text-primary); font-size: 14px; outline: none; transition: border-color 0.2s;">
+                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 6px; display: flex; gap: 4px;">
+                    <span style="color: var(--accent-green);">✓ 12+ Chars</span>
+                    <span>• 1 Uppercase</span>
+                    <span>• 1 Symbol</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; background-color: var(--accent-blue); color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;">
+                Submit Clearance Request
+            </button>
+        </form>
+
+        <div class="auth-footer" style="margin-top: 24px; text-align: center; font-size: 13px; color: var(--text-secondary); border-top: 1px solid var(--bg-border); padding-top: 20px;">
+            Already possess active clearance? <br>
+            <a href="/login" style="color: var(--accent-blue); text-decoration: none; font-weight: 600; display: inline-block; margin-top: 8px;">Initialize Secure Login</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: var(--accent-blue) !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    .btn-primary:hover {
+        background-color: #2563eb !important; 
+    }
+</style>
+{% endblock %}

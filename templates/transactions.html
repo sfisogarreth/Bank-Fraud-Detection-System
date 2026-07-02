@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Transaction Explorer</h1>
+
+<table border="1">
+
+    <tr>
+        <th>ID</th>
+        <th>Account</th>
+        <th>Amount</th>
+        <th>Risk Score</th>
+        <th>Status</th>
+    </tr>
+
+    {% for tx in transactions %}
+    <tr>
+        <td>
+            <a href="/investigation/{{ tx.id }}">{{ tx.id }}</a>
+        </td>
+        <td>{{ tx.account_number }}</td>
+        <td>R {{ tx.amount }}</td>
+        <td>{{ tx.risk_score }}</td>
+        <td>{{ tx.status }}</td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Fraud Investigation</h1>
+
+<p>
+    <strong>Transaction ID:</strong>
+    {{ transaction.id }}
+</p>
+
+<p>
+    <strong>Account Number:</strong>
+    {{ transaction.account_number }}
+</p>
+
+<p>
+    <strong>Amount:</strong>
+    R {{ transaction.amount }}
+</p>
+
+<p>
+    <strong>Risk Score:</strong>
+    {{ transaction.risk_score }}
+</p>
+
+<p>
+    <strong>Status:</strong>
+    {{ transaction.status }}
+</p>
+
+<hr>
+
+<button>Confirm Fraud</button>
+<button>Mark Safe</button>
+
+{% endblock %}

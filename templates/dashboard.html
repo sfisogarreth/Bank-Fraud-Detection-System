@@ -1,49 +1,355 @@
 {% extends "base.html" %}
 
-{% block title %}MAZI Fraud AI Dashboard{% endblock %}
+{% block title %}MAZI Threat Command Center{% endblock %}
 
 {% block content %}
-<div style="padding: 24px; border-bottom: 1px solid #242b3d; display: flex; justify-content: space-between; align-items: center;">
-    <h1 style="margin:0; font-size: 22px; color: var(--accent-green);">MAZI System Radar</h1>
-    <a href="/login" style="color: var(--accent-blue); text-decoration: none; font-size: 14px;">Operator Sign Out</a>
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    /* Custom Styles specific to the Command Center */
+    .glass-card {
+        background: rgba(66, 80, 166, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background-color: var(--accent-green);
+        border-radius: 50%;
+        margin-right: 8px;
+        box-shadow: 0 0 10px var(--accent-green);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        margin: 24px 0;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 250px;
+        width: 100%;
+    }
+
+    /* Animated Progress Bars for XAI */
+    @keyframes fillBar {
+        from { width: 0; }
+    }
+    .xai-bar-fill {
+        animation: fillBar 1.5s ease-out forwards;
+    }
+
+    /* Heat Map List */
+    .heat-map-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background: rgba(0,0,0,0.2);
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+</style>
+
+<div style="padding: 10px 24px 24px 24px; border-bottom: 1px solid var(--bg-border); display: flex; justify-content: space-between; align-items: center;">
+    <h1 style="margin:0; font-size: 24px; color: var(--text-primary);">MAZI Threat Command Center</h1>
+    <div style="font-size: 14px; color: var(--accent-green); display: flex; align-items: center; font-weight: 600;">
+        <span class="status-indicator"></span> Core Engine Active
+    </div>
 </div>
 
-<div class="dashboard-grid">
-    <div class="metric-card">
-        <div class="metric-title">Total Monitored Vol.</div>
+<!-- 1. Glass KPI Widgets -->
+<div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 24px;">
+    
+    <div class="glass-card">
+        <div class="metric-title" style="color: var(--text-secondary); margin-bottom: 12px;">👁 Total Transactions</div>
         <div class="metric-value">{{ stats.transaction_count }}</div>
+        <div style="font-size: 13px; color: var(--accent-green); margin-top: 8px;">↑ +12% Today</div>
     </div>
-    <div class="metric-card alert-card">
-        <div class="metric-title">Flagged Fraud Alerts</div>
-        <div class="metric-value" style="color: var(--accent-green);">Active Logs</div>
+    
+    <div class="glass-card" style="border-top: 3px solid var(--accent-red);">
+        <div class="metric-title" style="color: var(--text-secondary); margin-bottom: 12px;">🚨 Fraud Alerts</div>
+        <div class="metric-value" style="color: var(--accent-red);">{{ stats.active_alerts }}</div>
+        <div style="font-size: 13px; color: var(--accent-orange); margin-top: 8px;">3 Critical Interceptions</div>
     </div>
-    <div class="metric-card">
-        <div class="metric-title">System Risk Engine</div>
-        <div class="metric-value" style="color: var(--accent-blue);">Operational</div>
+    
+    <div class="glass-card">
+        <div class="metric-title" style="color: var(--text-secondary); margin-bottom: 12px;">🤖 AI Accuracy</div>
+        <div class="metric-value" style="color: var(--text-primary);">98.2%</div>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">FPR: {{ stats.false_positive_rate }}%</div>
+    </div>
+    
+    <div class="glass-card" style="border-top: 3px solid var(--accent-green);">
+        <div class="metric-title" style="color: var(--text-secondary); margin-bottom: 12px;">Live Node Status</div>
+        <div style="color: var(--accent-green); font-weight: bold; font-size: 18px; margin-bottom: 4px;">🟢 System Secure</div>
+        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            Uptime: 99.9%<br>
+            Threats Blocked Today: 24<br>
+            Live Monitoring: Active
+        </div>
     </div>
 </div>
 
-<div class="table-container">
-    <div class="table-header">Active Risk Interceptions & Cases</div>
-    <table>
-        <thead>
-            <tr>
-                <th>Case ID</th>
-                <th>Fraud Interception Category</th>
-                <th>Investigation State</th>
-                <th>Prevented Capital Loss</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for case in fraud_cases %}
-            <tr>
-                <td>#{{ case.id }}</td>
-                <td style="color: var(--accent-blue);">{{ case.type }}</td>
-                <td><span style="color: var(--accent-green);">●</span> {{ case.status }}</td>
-                <td>R {{ case.loss }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<!-- 2. Command Center Charts Grid -->
+<div class="chart-grid" style="padding: 0 24px;">
+    <!-- Risk Gauge -->
+    <div class="glass-card">
+        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 10px; text-align: center;">Current Network Risk</h3>
+        <div class="chart-container">
+            <canvas id="riskGauge"></canvas>
+        </div>
+        <div style="text-align: center; margin-top: -40px;">
+            <div style="font-size: 32px; font-weight: bold; color: var(--accent-red);">92%</div>
+            <div style="font-size: 14px; color: var(--accent-red); font-weight: 600;">Critical Risk Detected</div>
+        </div>
+    </div>
+
+    <!-- Fraud Trend Line Chart -->
+    <div class="glass-card">
+        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 10px;">7-Day Fraud Trends</h3>
+        <div class="chart-container">
+            <canvas id="fraudTrendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Fraud Category Donut -->
+    <div class="glass-card">
+        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 10px;">Attack Vectors</h3>
+        <div class="chart-container">
+            <canvas id="fraudTypeChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Risk Distribution Bar Chart -->
+    <div class="glass-card">
+        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 10px;">Alert Severity Distribution</h3>
+        <div class="chart-container">
+            <canvas id="riskDistributionChart"></canvas>
+        </div>
+    </div>
 </div>
+
+<div style="display: flex; gap: 24px; padding: 0 24px 24px 24px;">
+
+    <!-- Investigation Table -->
+    <div class="glass-card" style="flex: 2;">
+        <div style="padding-bottom: 16px; border-bottom: 1px solid var(--bg-border); color: var(--accent-green); font-weight: bold; font-size: 18px; margin-bottom: 16px;">
+            Active Risk Interceptions
+        </div>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th style="padding: 12px; text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--bg-border);">Case ID</th>
+                    <th style="padding: 12px; text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--bg-border);">Risk Level</th> 
+                    <th style="padding: 12px; text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--bg-border);">Category</th>
+                    <th style="padding: 12px; text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--bg-border);">Capital Protection</th>
+                    <th style="padding: 12px; text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--bg-border);">Actions</th> 
+                </tr>
+            </thead>
+            <tbody>
+                {% for case in fraud_cases %}
+                <tr style="transition: background 0.2s;">
+                    <td style="padding: 16px 12px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05);">#{{ case.id }}</td>
+                    <td style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        {% if case.risk_score > 85 %}
+                            <span style="color: var(--accent-red); background: rgba(239, 68, 68, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Critical</span>
+                        {% elif case.risk_score > 60 %}
+                            <span style="color: var(--accent-orange); background: rgba(245, 158, 11, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">High</span>
+                        {% else %}
+                            <span style="color: var(--accent-green); background: rgba(71, 160, 74, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Review</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 16px 12px; color: var(--accent-blue); border-bottom: 1px solid rgba(255,255,255,0.05);">{{ case.type }}</td>
+                    <td style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">R {{ case.loss }}</td>
+                    <td style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <form action="/resolve/{{ case.id }}" method="POST" style="display: inline;">
+                            <button type="submit" name="action" value="confirm" style="background: var(--accent-red); color: white; border: none; padding: 6px 12px; border-radius: 12px; cursor: pointer; font-size: 12px;">Confirm</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Right Column: XAI and Heatmap -->
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 24px;">
+        
+        <!-- XAI Panel -->
+        <div class="glass-card">
+            <h3 style="margin-top: 0; color: var(--accent-green); font-size: 16px;">AI Decision Rationale</h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Analyzing Case #{{ latest_case.id }}</p>
+            
+            <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; color: var(--text-primary);">
+                {% for feature in latest_case.xai_features %}
+                <li style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span>{{ feature.name }}</span>
+                        <span style="font-weight: bold;">{{ feature.weight }}%</span>
+                    </div>
+                    <div style="width: 100%; background: rgba(0,0,0,0.3); height: 8px; border-radius: 10px; overflow: hidden;">
+                        <div class="xai-bar-fill" style="width: {{ feature.weight }}%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-green)); height: 100%; border-radius: 10px;"></div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Threat Heat Map -->
+        <div class="glass-card">
+            <h3 style="margin-top: 0; color: var(--accent-orange); font-size: 16px; margin-bottom: 16px;">Live Threat Heat Map</h3>
+            
+            <div class="heat-map-item">
+                <div><span style="font-size: 16px;">🔴</span> Johannesburg</div>
+                <div style="font-weight: bold; color: var(--accent-red);">12 Alerts</div>
+            </div>
+            <div class="heat-map-item">
+                <div><span style="font-size: 16px;">🔴</span> Durban</div>
+                <div style="font-weight: bold; color: var(--accent-red);">8 Alerts</div>
+            </div>
+            <div class="heat-map-item">
+                <div><span style="font-size: 16px;">🟡</span> Cape Town</div>
+                <div style="font-weight: bold; color: var(--accent-orange);">5 Alerts</div>
+            </div>
+            <div class="heat-map-item">
+                <div><span style="font-size: 16px;">🟢</span> Pretoria</div>
+                <div style="font-weight: bold; color: var(--accent-green);">1 Alert</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Chart.js Initialization Script -->
+<script>
+    // Common Theme Variables
+    const colorText = '#cbd5e1';
+    const colorGrid = 'rgba(255, 255, 255, 0.05)';
+    const colorBlue = '#4250A6';
+    const colorGreen = '#47A04A';
+    const colorRed = '#ef4444';
+    const colorOrange = '#f59e0b';
+
+    Chart.defaults.color = colorText;
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    // 1. Risk Gauge (Half Doughnut)
+    const ctxGauge = document.getElementById('riskGauge').getContext('2d');
+    new Chart(ctxGauge, {
+        type: 'doughnut',
+        data: {
+            labels: ['Risk', 'Safe'],
+            datasets: [{
+                data: [92, 8],
+                backgroundColor: [colorRed, 'rgba(255,255,255,0.05)'],
+                borderWidth: 0,
+                cutout: '80%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            rotation: -90,
+            circumference: 180,
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            }
+        }
+    });
+
+    // 2. Fraud Trend Line Chart
+    const ctxTrend = document.getElementById('fraudTrendChart').getContext('2d');
+    new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Interceptions',
+                data: [12, 19, 15, 25, 22, 30, 24],
+                borderColor: colorGreen,
+                backgroundColor: 'rgba(71, 160, 74, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: colorGrid }, beginAtZero: true },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 3. Fraud Type Donut
+    const ctxType = document.getElementById('fraudTypeChart').getContext('2d');
+    new Chart(ctxType, {
+        type: 'doughnut',
+        data: {
+            labels: ['Account Takeover', 'Card Fraud', 'Identity Theft', 'AML'],
+            datasets: [{
+                data: [40, 30, 20, 10],
+                backgroundColor: [colorRed, colorOrange, colorBlue, colorGreen],
+                borderWidth: 0,
+                cutout: '70%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right' }
+            }
+        }
+    });
+
+    // 4. Risk Distribution Bar Chart
+    const ctxDist = document.getElementById('riskDistributionChart').getContext('2d');
+    new Chart(ctxDist, {
+        type: 'bar',
+        data: {
+            labels: ['Critical', 'High', 'Medium', 'Low'],
+            datasets: [{
+                label: 'Case Volume',
+                data: [14, 28, 45, 80],
+                backgroundColor: [colorRed, colorOrange, colorBlue, colorGreen],
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: colorGrid }, beginAtZero: true },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>
 {% endblock %}

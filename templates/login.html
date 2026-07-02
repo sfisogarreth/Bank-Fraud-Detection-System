@@ -1,25 +1,62 @@
 {% extends "base.html" %}
 
-{% block title %}MAZI AI - Secure Login{% endblock %}
+{% block title %}MAZI AI - Secure Authentication Gate{% endblock %}
 
 {% block content %}
-<div class="auth-wrapper">
-    <div class="auth-card">
-        <h2>MAZI Fraud AI Gate</h2>
+<div class="auth-wrapper" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--bg-base); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+    
+    <div style="position: absolute; top: 24px; right: 24px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary);">
+        <span style="height: 8px; width: 8px; background-color: var(--accent-green); border-radius: 50%; box-shadow: 0 0 8px var(--accent-green);"></span>
+        Core Node: Online & Encrypted
+    </div>
+
+    <div class="auth-card" style="background-color: var(--bg-surface); padding: 40px; border-radius: 12px; border: 1px solid var(--bg-border); width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        
+        <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.5px;">MAZI <span style="color: var(--accent-blue);">AI</span></h1>
+            <p style="color: var(--text-secondary); font-size: 14px;">Authorized Fraud Operators Only</p>
+        </div>
+
         <form action="/login" method="POST">
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" name="email" class="form-control" placeholder="operator@mazi.ai" required>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">Operator Identity</label>
+                <input type="email" name="email" class="form-control" placeholder="givemoretaranhike@gmail.com" required style="width: 100%; padding: 12px 16px; background-color: var(--bg-base); border: 1px solid var(--bg-border); border-radius: 6px; color: var(--text-primary); font-size: 14px; outline: none; transition: border-color 0.2s;">
             </div>
-            <div class="form-group">
-                <label>Security Password</label>
-                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+            
+            <div class="form-group" style="margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Security Key</label>
+                    <a href="#" style="font-size: 12px; color: var(--accent-blue); text-decoration: none;">Forgot Key?</a>
+                </div>
+                <input type="password" name="password" class="form-control" placeholder="••••••••••••" required style="width: 100%; padding: 12px 16px; background-color: var(--bg-base); border: 1px solid var(--bg-border); border-radius: 6px; color: var(--text-primary); font-size: 14px; outline: none; transition: border-color 0.2s;">
             </div>
-            <button type="submit" class="btn-primary">Authenticate</button>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; font-size: 13px; color: var(--text-secondary);">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" name="remember" style="accent-color: var(--accent-blue);">
+                    Remember Device
+                </label>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; background-color: var(--accent-blue); color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;">
+                Initiate Secure Session
+            </button>
         </form>
-        <div class="auth-footer">
-            Unauthorized access is logged. <a href="/signup">Request Access</a>
+
+        <div class="auth-footer" style="margin-top: 24px; text-align: center; font-size: 12px; color: var(--text-secondary); border-top: 1px solid var(--bg-border); padding-top: 20px;">
+            <p style="margin-bottom: 8px;">Failed attempts are logged. IP routing is tracked.</p>
+            <p>Require clearance? <a href="/signup" style="color: var(--accent-blue); text-decoration: none; font-weight: 500;">Request Access</a></p>
         </div>
     </div>
 </div>
+
+<style>
+    .form-control:focus {
+        border-color: var(--accent-blue) !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    .btn-primary:hover {
+        background-color: #2563eb !important; /* Slightly darker blue */
+    }
+</style>
 {% endblock %}

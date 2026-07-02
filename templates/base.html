@@ -3,13 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
     <title>{% block title %}MAZI Fraud AI{% endblock %}</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        :root {
+            /* Updated Core Backgrounds */
+            --bg-base: #290E4A;        /* Deep Purple Background */
+            --bg-surface: rgba(66, 80, 166, 0.15); /* Transparent Indigo for cards */
+            --bg-border: #4250A6;      /* Indigo borders */
+            
+            /* Updated Accents */
+            --accent-blue: #4250A6;    /* Indigo */
+            --accent-green: #47A04A;   /* Green */
+            --accent-red: #ef4444;     
+            --accent-orange: #f59e0b;  
+            
+            /* Text Colors */
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            
+            /* Sizing */
+            --sidebar-width: 280px;
+        }
+
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 3. Global Dashboard Layout */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--bg-border);
+            display: flex;
+            flex-direction: column;
+            padding: 32px 20px;
+            /* Curly Sidebar */
+            border-top-right-radius: 30px;
+            border-bottom-right-radius: 30px;
+            margin-right: 20px;
+        }
+
+        .sidebar-logo {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 40px;
+            padding-left: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .sidebar-logo span {
+            color: var(--accent-green);
+        }
+
+        /* Advanced Nav Link with Emojis */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 30px; /* Curly buttons */
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--accent-blue);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(66, 80, 166, 0.4);
+        }
+
+        /* Divider for Sign Out */
+        .nav-divider {
+            height: 1px;
+            background-color: var(--bg-border);
+            margin: 16px 20px;
+        }
+
+        .nav-link.sign-out {
+            color: var(--accent-red);
+        }
+
+        .nav-link.sign-out:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+            border-color: rgba(239, 68, 68, 0.3);
+            box-shadow: none;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        /* Card and Table styles */
+        .metric-card {
+            background: var(--bg-surface);
+            padding: 24px;
+            border-radius: 20px; /* Curly cards */
+            border: 1px solid var(--bg-border);
+        }
+        
+        .metric-title {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .table-container {
+            background: var(--bg-surface);
+            border: 1px solid var(--bg-border);
+            border-radius: 20px; /* Curly tables */
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
 
-    {% block content %}
-    {% endblock %}
+    <aside class="sidebar">
+        <div class="sidebar-logo">MAZI <span>AI</span></div>
+        <nav>
+            <a href="/" class="nav-link active"><span>🏠</span> System Radar</a>
+            <a href="/transactions" class="nav-link"><span>💳</span> Transactions</a>
+            <a href="/investigations" class="nav-link"><span>🔍</span> Investigation Logs</a>
+            <a href="/analytics" class="nav-link"><span>📊</span> Model Analytics</a>
+            <a href="/risk-engine" class="nav-link"><span>🛡</span> Risk Engine</a>
+            <a href="/reports" class="nav-link"><span>📄</span> Reports</a>
+            <a href="/settings" class="nav-link"><span>⚙</span> Settings</a>
+            
+            <div class="nav-divider"></div>
+            
+            <a href="/login" class="nav-link sign-out"><span>🚪</span> Sign Out</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
 
 </body>
 </html>
