@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}MAZI Settings{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>⚙ System Settings</h1>
+    <p>Manage the MAZI Fraud Intelligence Platform</p>
+</div>
+
+<div class="settings-container">
+
+    <div class="settings-card">
+
+        <h3>Profile</h3>
+
+        <label>Operator Name</label>
+
+        <input
+            type="text"
+            value="Fraud Analyst"
+        >
+
+        <label>Email</label>
+
+        <input
+            type="email"
+            value="analyst@mazi.ai"
+        >
+
+        <button class="save-btn">
+            Save Changes
+        </button>
+
+    </div>
+
+    <div class="settings-card">
+
+        <h3>AI Risk Engine</h3>
+
+        <label>Fraud Threshold</label>
+
+        <input
+            type="range"
+            min="0"
+            max="100"
+            value="85"
+        >
+
+        <p>
+            Current Threshold:
+            <strong>85</strong>
+        </p>
+
+    </div>
+
+    <div class="settings-card">
+
+        <h3>Notifications</h3>
+
+        <input type="checkbox" checked>
+        Email Alerts
+
+        <br><br>
+
+        <input type="checkbox" checked>
+        Critical Fraud Alerts
+
+        <br><br>
+
+        <input type="checkbox">
+        Weekly Reports
+
+    </div>
+
+    <div class="settings-card">
+
+        <h3>System Status</h3>
+
+        <p>🟢 Fraud Engine Online</p>
+
+        <p>🟢 SQLite Database Active</p>
+
+        <p>🟢 Model Loaded Successfully</p>
+
+        <p>🟢 Monitoring Enabled</p>
+
+    </div>
+
+</div>
+
+{% endblock %}

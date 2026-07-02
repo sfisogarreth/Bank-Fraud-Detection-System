@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}MAZI Investigation Logs{% endblock %}
+
+{% block content %}
+<div style="padding: 10px 24px 24px 24px; border-bottom: 1px solid var(--bg-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <h1 style="margin:0; font-size: 24px; color: var(--text-primary);">Investigation Logs</h1>
+    <div style="font-size: 14px; color: var(--text-secondary);">
+        Reviewing all flagged system anomalies
+    </div>
+</div>
+
+<div style="padding: 0 24px;">
+    <!-- Glass Table Container -->
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 0; overflow: hidden;">
+        
+        <div style="padding: 20px 24px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.2);">
+            <div style="color: var(--accent-green); font-weight: bold; font-size: 18px;">
+                Comprehensive Case Registry
+            </div>
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th style="padding: 16px 24px; text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--bg-border);">Case ID</th>
+                    <th style="padding: 16px 24px; text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--bg-border);">Risk Level</th> 
+                    <th style="padding: 16px 24px; text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--bg-border);">Fraud Category</th>
+                    <th style="padding: 16px 24px; text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--bg-border);">Potential Loss</th>
+                    <th style="padding: 16px 24px; text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--bg-border);">Deep Dive</th> 
+                </tr>
+            </thead>
+            <tbody>
+                {% for case in cases %}
+                <tr style="transition: background 0.2s;">
+                    <!-- Case ID -->
+                    <td style="padding: 16px 24px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05);">#{{ case.id }}</td>
+                    
+                    <!-- Risk Level Badges -->
+                    <td style="padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        {% if case.risk_score > 85 %}
+                            <span style="color: var(--accent-red); background: rgba(239, 68, 68, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Critical</span>
+                        {% elif case.risk_score > 60 %}
+                            <span style="color: var(--accent-orange); background: rgba(245, 158, 11, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">High</span>
+                        {% else %}
+                            <span style="color: var(--accent-green); background: rgba(71, 160, 74, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Review</span>
+                        {% endif %}
+                    </td>
+                    
+                    <!-- Category & Loss -->
+                    <td style="padding: 16px 24px; color: var(--accent-blue); border-bottom: 1px solid rgba(255,255,255,0.05);">{{ case.type }}</td>
+                    <td style="padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05);">R {{ case.loss }}</td>
+                    
+                    <!-- Action Link Route -->
+                    <td style="padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <a href="/investigation/{{ case.id }}" style="background: var(--accent-blue); color: white; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; transition: background 0.2s; display: inline-block;">
+                            View Details
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <!-- Fallback if no cases exist -->
+                <tr>
+                    <td colspan="5" style="padding: 32px; text-align: center; color: var(--text-secondary);">
+                        No active investigation logs found in the database.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}MAZI Analytics{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>📊 Fraud Analytics Center</h1>
+    <p>AI-driven fraud trends and risk intelligence</p>
+</div>
+
+<div class="analytics-grid">
+
+    <div class="analytics-card">
+        <h3>Total Fraud Attempts</h3>
+        <div class="big-number">247</div>
+    </div>
+
+    <div class="analytics-card">
+        <h3>Fraud Prevented</h3>
+        <div class="big-number success">R 2.4M</div>
+    </div>
+
+    <div class="analytics-card">
+        <h3>Model Accuracy</h3>
+        <div class="big-number info">98.2%</div>
+    </div>
+
+    <div class="analytics-card">
+        <h3>False Positives</h3>
+        <div class="big-number warning">1.8%</div>
+    </div>
+
+</div>
+
+<div class="chart-row">
+
+    <div class="chart-card">
+        <h3>Fraud Trend</h3>
+        <canvas id="fraudTrend"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <h3>Fraud Categories</h3>
+        <canvas id="fraudCategories"></canvas>
+    </div>
+
+</div>
+
+<div class="chart-row">
+
+    <div class="chart-card">
+        <h3>Risk Distribution</h3>
+        <canvas id="riskDistribution"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <h3>Detection Performance</h3>
+        <canvas id="performanceChart"></canvas>
+    </div>
+
+</div>
+
+<script>
+
+new Chart(document.getElementById("fraudTrend"), {
+
+    type: "line",
+
+    data: {
+
+        labels: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+
+        datasets: [{
+            label: "Fraud Cases",
+            data: [12,19,9,25,17,10,15],
+            borderColor: "#4f7cff",
+            backgroundColor: "rgba(79,124,255,0.2)",
+            fill: true
+        }]
+    }
+});
+
+
+new Chart(document.getElementById("fraudCategories"), {
+
+    type: "doughnut",
+
+    data: {
+
+        labels: [
+            "Account Takeover",
+            "Card Fraud",
+            "AML",
+            "Identity Theft"
+        ],
+
+        datasets: [{
+            data: [35,30,20,15],
+            backgroundColor: [
+                "#ff4d4d",
+                "#4f7cff",
+                "#00d084",
+                "#ffaa00"
+            ]
+        }]
+    }
+});
+
+
+new Chart(document.getElementById("riskDistribution"), {
+
+    type: "bar",
+
+    data: {
+
+        labels: [
+            "Low",
+            "Medium",
+            "High",
+            "Critical"
+        ],
+
+        datasets: [{
+            data: [42,27,18,8],
+            backgroundColor: [
+                "#00d084",
+                "#4f7cff",
+                "#ffaa00",
+                "#ff4d4d"
+            ]
+        }]
+    }
+});
+
+
+new Chart(document.getElementById("performanceChart"), {
+
+    type: "radar",
+
+    data: {
+
+        labels: [
+            "Precision",
+            "Recall",
+            "Accuracy",
+            "F1 Score",
+            "Sensitivity"
+        ],
+
+        datasets: [{
+
+            label: "AI Model",
+
+            data: [
+                95,
+                92,
+                98,
+                94,
+                91
+            ],
+
+            borderColor: "#00d084",
+            backgroundColor: "rgba(0,208,132,0.3)"
+        }]
+    }
+});
+
+</script>
+
+{% endblock %}

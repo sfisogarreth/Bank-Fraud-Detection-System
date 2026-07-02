@@ -1,37 +1,60 @@
 {% extends "base.html" %}
 
+{% block title %}Case Details #{{ transaction.id }}{% endblock %}
+
 {% block content %}
+<div style="padding: 10px 24px 24px 24px; border-bottom: 1px solid var(--bg-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <h1 style="margin:0; font-size: 24px; color: var(--text-primary);">Fraud Investigation: Case #{{ transaction.id }}</h1>
+    <a href="/investigations" style="color: var(--accent-blue); text-decoration: none; font-size: 14px; border: 1px solid var(--accent-blue); padding: 8px 16px; border-radius: 20px; transition: all 0.2s;">← Back to Logs</a>
+</div>
 
-<h1>Fraud Investigation</h1>
+<div style="padding: 0 24px; max-width: 800px;">
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 32px;">
+        
+        <h3 style="color: var(--accent-green); margin-top: 0; margin-bottom: 24px; font-size: 18px;">Transaction Profile</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
+            <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid var(--bg-border);">
+                <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Transaction ID</div>
+                <div style="color: var(--text-primary); font-size: 18px; font-weight: 600;">{{ transaction.id }}</div>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid var(--bg-border);">
+                <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Account Number</div>
+                <div style="color: var(--text-primary); font-size: 18px; font-weight: 600;">{{ transaction.account_number }}</div>
+            </div>
 
-<p>
-    <strong>Transaction ID:</strong>
-    {{ transaction.id }}
-</p>
+            <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid var(--bg-border);">
+                <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Amount</div>
+                <div style="color: var(--accent-blue); font-size: 18px; font-weight: 600;">R {{ transaction.amount }}</div>
+            </div>
 
-<p>
-    <strong>Account Number:</strong>
-    {{ transaction.account_number }}
-</p>
+            <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid var(--bg-border);">
+                <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Risk Score</div>
+                <div style="color: var(--accent-red); font-size: 18px; font-weight: 600;">{{ transaction.risk_score }}/100</div>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid var(--bg-border); grid-column: span 2;">
+                <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Current Status</div>
+                <div style="color: var(--accent-orange); font-size: 18px; font-weight: 600;">{{ transaction.status }}</div>
+            </div>
+        </div>
 
-<p>
-    <strong>Amount:</strong>
-    R {{ transaction.amount }}
-</p>
+        <hr style="border: none; border-top: 1px solid var(--bg-border); margin-bottom: 24px;">
 
-<p>
-    <strong>Risk Score:</strong>
-    {{ transaction.risk_score }}
-</p>
+        <!-- Form wrapping the action buttons -->
+        <form action="/investigation/{{ transaction.id }}/resolve" method="POST" style="display: flex; gap: 16px;">
+            
+            <button type="submit" name="action" value="confirm" style="flex: 1; background: var(--accent-red); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">
+                Confirm Fraud
+            </button>
+            
+            <button type="submit" name="action" value="safe" style="flex: 1; background: var(--accent-green); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">
+                Mark Safe
+            </button>
+            
+        </form>
 
-<p>
-    <strong>Status:</strong>
-    {{ transaction.status }}
-</p>
-
-<hr>
-
-<button>Confirm Fraud</button>
-<button>Mark Safe</button>
-
+    </div>
+</div>
 {% endblock %}
