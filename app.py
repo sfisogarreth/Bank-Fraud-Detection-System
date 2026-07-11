@@ -1,7 +1,7 @@
 import os
 import logging
 from datetime import datetime
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -11,8 +11,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 # Logging setup
+os.makedirs("logs", exist_ok=True)
+
 logging.basicConfig(
-    filename='logs/mazi.log',
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
@@ -30,6 +31,11 @@ app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
 app.register_blueprint(analytics_bp, url_prefix='/analytics')
 app.register_blueprint(investigations_bp, url_prefix='/investigations')
 app.register_blueprint(transactions_bp, url_prefix='/transactions')
+
+# Root route - redirect to dashboard
+@app.route("/")
+def index():
+    return redirect("/dashboard/")
 
 # Database health check
 @app.route("/db-test")
