@@ -1,49 +1,15 @@
-from flask import Blueprint
-from flask import render_template
+from flask import Blueprint, render_template, jsonify
+from services.transaction_service import get_transaction_stats, get_recent_transactions
 
-from services.transaction_service import (
-    get_transaction_count,
-    get_recent_cases
-)
-
-from services.xai_engine import (
-    generate_explanation
-)
-
-dashboard_bp = Blueprint(
-    "dashboard",
-    __name__
-)
+dashboard_bp = Blueprint('dashboard', __name__)
 
 @dashboard_bp.route('/')
 def dashboard():
+    stats = get_transaction_stats()
+    recent = get_recent_transactions(10)
+    return render_template("dashboard.html", stats=stats, transactions=recent)
 
-    count = get_transaction_count()
-
-    cases = get_recent_cases()
-
-    stats = {
-
-        "transaction_count":
-            f"{count:,}",
-
-        "active_alerts":
-            len(cases),
-
-        "false_positive_rate":
-            1.8
-    }
-
-    latest_case = generate_explanation(
-        cases[0]
-    )
-
-    return render_template(
-        "dashboard.html",
-
-        stats=stats,
-
-        fraud_cases=cases,
-
-        latest_case=latest_case
-    )
+@dashboard_bp.route('/api/stats')
+def api_stats():
+    """JSON endpoint for AJAX updates (live dashboard)."""
+    return jsonify(get_transaction_stats())

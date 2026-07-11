@@ -1,21 +1,27 @@
 #include <pybind11/pybind11.h>
+#include <vector>
+#include <cmath>
 
 namespace py = pybind11;
 
-// A high-speed function to calculate a baseline risk score 
-// based on transaction amount and the user's daily velocity.
-double calculate_velocity_risk(double amount, int daily_transactions) {
-    double risk_score = 0.0;
-    
-    if (amount > 10000.0) risk_score += 0.5;
-    if (daily_transactions > 15) risk_score += 0.3;
-    
-    // Cap the risk score at 1.0 (100% risk)
-    return (risk_score > 1.0) ? 1.0 : risk_score;
+double calculate_risk_score(double amount, int transaction_count_24h) {
+    // Simple velocity-based risk calculation
+    double base_risk = (amount / 1000.0) * 2.5;
+    double velocity_multiplier = 1.0 + (transaction_count_24h * 0.15);
+    double risk = base_risk * velocity_multiplier;
+    return std::min(100.0, risk);
 }
 
-// This macro binds the C++ function so Python can import it
+double batch_process(const std::vector<double>& amounts) {
+    double total = 0.0;
+    for (double amt : amounts) total += amt;
+    return total;
+}
+
 PYBIND11_MODULE(fast_math, m) {
-    m.doc() = "C++ High Performance Math Module for MAZI"; 
-    m.def("calculate_velocity_risk", &calculate_velocity_risk, "Calculates risk based on velocity");
+    m.doc() = "MAZI High-Performance Risk Calculations";
+    m.def("calculate_risk_score", &calculate_risk_score, 
+          "Calculate risk based on amount and velocity");
+    m.def("batch_process", &batch_process, 
+          "Sum amounts quickly");
 }
