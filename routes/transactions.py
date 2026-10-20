@@ -1,53 +1,83 @@
-import sqlite3
-import os
+from flask import (
+    Blueprint,
+    render_template,
+    session
+)
 
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "mazi.db")
+from services.transaction_service import (
+    get_recent_transactions,
+    get_transaction_by_id
+)
 
-def get_db_connection():
-    """Production-ready connection handler."""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    # Enable foreign key support (SQLite disables by default!)
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+from services.security import (
+    login_required
+)
 
-def get_transaction_stats():
-    """Get dashboard statistics from real data."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    stats = {
-        "total_transactions": cursor.execute("SELECT COUNT(*) FROM transactions").fetchone()[0],
-        "flagged_count": cursor.execute("SELECT COUNT(*) FROM transactions WHERE status = 'Flagged'").fetchone()[0],
-        "total_amount": cursor.execute("SELECT COALESCE(SUM(amount), 0) FROM transactions").fetchone()[0],
-        "avg_risk_score": cursor.execute("SELECT COALESCE(AVG(risk_score), 0) FROM transactions").fetchone()[0],
-        "fraud_count": cursor.execute("SELECT COUNT(*) FROM transactions WHERE is_fraud = 1").fetchone()[0]
-    }
-    
-    conn.close()
-    return stats
+transactions_bp = Blueprint(
+    'transactions',
+    __name__
+)
 
-def get_recent_transactions(limit=10):
-    """Get recent transactions for dashboard table."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT transaction_id, account_number, amount, location, 
-               risk_score, status, timestamp
-        FROM transactions
-        ORDER BY timestamp DESC
-        LIMIT ?
-    """, (limit,))
-    rows = cursor.fetchall()
-    conn.close()
-    return [dict(row) for row in rows]
 
-def get_transaction_by_id(transaction_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT * FROM transactions WHERE transaction_id = ?
-    """, (transaction_id,))
-    row = cursor.fetchone()
-    conn.close()
-    return dict(row) if row else None
+# ==================================================
+# TRANSACTIONS LIST
+# ==================================================
+
+@transactions_bp.route('/')
+@login_required
+def transactions_list():
+    """
+    Show transactions based on user role.
+    """
+
+    role = session.get("role", "Customer")
+    user_id = session.get("user_id")
+
+    # CUSTOMER VIEW
+    # Later we will replace this with:
+    # get_customer_transactions(user_id)
+    if role == "Customer":
+
+        transactions = get_recent_transactions(20)
+
+    # ADMIN / MANAGER VIEW
+    else:
+
+        transactions = get_recent_transactions(50)
+
+    return render_template(
+        "transactions.html",
+        transactions=transactions,
+        user_role=role,
+        username=session.get("username")
+    )
+
+
+# ==================================================
+# TRANSACTION DETAILS
+# ==================================================
+
+@transactions_bp.route('/<transaction_id>')
+@login_required
+def transaction_detail(transaction_id):
+    """
+    Show details for a single transaction.
+    """
+
+    role = session.get("role", "Customer")
+
+    txn = get_transaction_by_id(transaction_id)
+
+    if txn is None:
+
+        return render_template(
+            "coming_soon.html",
+            page_name=f"Transaction {transaction_id} Not Found"
+        ), 404
+
+    return render_template(
+        "transactions.html",
+        transaction=txn,
+        user_role=role,
+        username=session.get("username")
+    )

@@ -58,32 +58,34 @@ typer==0.25.1
 typing_extensions==4.15.0
 tzdata==2026.2
 Werkzeug==3.1.8
+kagglesdk==0.1.37
 
 
-# Core Web
+# then these are for the core web application, which is a Flask app that serves the ML model and handles requests.
 Flask==3.0.3
 Werkzeug==3.0.3
 gunicorn==23.0.0
 
-# Database
+# while for the database, we are using MySQL, so we need the MySQL connector and SQLAlchemy for ORM.
 mysql-connector-python==8.4.0
 SQLAlchemy==2.0.31
 
-# Machine Learning
+# then after that, we have the machine learning libraries, which include scikit-learn for model training and evaluation, pandas and numpy for data manipulation, and joblib for model serialization.
 scikit-learn==1.5.1
 pandas==2.2.2
 numpy==1.26.4
 joblib==1.4.2
 
-# C++ Integration
+#then for the intergration with the Hugging Face model hub, we have the huggingface_hub library.
+huggingface_hub==1.20.1
 pybind11==2.12.0
 
-# Security & Utilities
+#in terms of the security and rate limiting, we have Flask-Limiter for rate limiting, Flask-Talisman for security headers, and bcrypt for password hashing.
 python-dotenv==1.0.1
 Flask-Limiter==3.7.0
 Flask-Talisman==1.1.0
 bcrypt==4.1.3
 
-# Data Visualization (for reports)
+# and lastly for the visualization libraries, we have matplotlib and seaborn for creating plots and visualizations.
 matplotlib==3.9.0
 seaborn==0.13.2

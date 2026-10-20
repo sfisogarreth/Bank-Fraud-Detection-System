@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}
+Fraud Reports
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>Fraud Intelligence Reports</h1>
+
+    <p>
+        Executive summary of fraud activity,
+        investigation outcomes and platform metrics.
+    </p>
+
+</div>
+
+<br>
+
+<!-- REPORT SUMMARY -->
+
+<div style="
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:30px;
+">
+
+    <div class="metric-card">
+        <div class="metric-title">
+            Total Transactions
+        </div>
+
+        <div class="metric-value">
+            {{ report.total_transactions }}
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-title">
+            Confirmed Fraud
+        </div>
+
+        <div class="metric-value">
+            {{ report.confirmed_fraud }}
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-title">
+            Flagged Transactions
+        </div>
+
+        <div class="metric-value">
+            {{ report.flagged_transactions }}
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-title">
+            Fraud Rate
+        </div>
+
+        <div class="metric-value">
+            {{ report.fraud_rate }}%
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-title">
+            Average Risk Score
+        </div>
+
+        <div class="metric-value">
+            {{ report.avg_risk }}
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-title">
+            Transaction Value
+        </div>
+
+        <div class="metric-value">
+            ${{ "{:,.2f}".format(report.total_amount) }}
+        </div>
+    </div>
+
+</div>
+
+<!-- FRAUD CASES -->
+
+<div class="table-container">
+
+    <h2>
+        Recent Confirmed Fraud Cases
+    </h2>
+
+    <br>
+
+    <table
+        style="
+        width:100%;
+        border-collapse:collapse;
+        "
+    >
+
+        <thead>
+
+            <tr>
+
+                <th>Transaction ID</th>
+                <th>Account</th>
+                <th>Amount</th>
+                <th>Risk Score</th>
+                <th>Date</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for row in recent_fraud_cases %}
+
+            <tr>
+
+                <td>
+                    {{ row.transaction_id }}
+                </td>
+
+                <td>
+                    {{ row.account_number }}
+                </td>
+
+                <td>
+                    ${{ "{:,.2f}".format(row.amount) }}
+                </td>
+
+                <td>
+
+                    <span style="
+                    background:#ef4444;
+                    padding:5px 10px;
+                    border-radius:15px;
+                    ">
+                        {{ row.risk_score }}
+                    </span>
+
+                </td>
+
+                <td>
+                    {{ row.timestamp }}
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<br>
+
+<!-- MANAGEMENT SUMMARY -->
+
+<div class="table-container">
+
+    <h2>
+        Management Summary
+    </h2>
+
+    <br>
+
+    <p>
+
+        The MAZI Fraud Detection Platform processed
+        <strong>
+            {{ report.total_transactions }}
+        </strong>
+
+        transactions.
+
+    </p>
+
+    <br>
+
+    <p>
+
+        A total of
+
+        <strong>
+            {{ report.confirmed_fraud }}
+        </strong>
+
+        confirmed fraud cases were identified.
+
+    </p>
+
+    <br>
+
+    <p>
+
+        Current fraud rate:
+
+        <strong>
+            {{ report.fraud_rate }}%
+        </strong>
+
+    </p>
+
+    <br>
+
+    <p>
+
+        Average transaction risk score:
+
+        <strong>
+            {{ report.avg_risk }}
+        </strong>
+
+    </p>
+
+</div>
+
+{% endblock %}

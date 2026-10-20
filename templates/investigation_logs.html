@@ -11,7 +11,6 @@
 </div>
 
 <div style="padding: 0 24px;">
-    <!-- Glass Table Container -->
     <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 0; overflow: hidden;">
         
         <div style="padding: 20px 24px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.2);">
@@ -20,6 +19,7 @@
             </div>
         </div>
         
+        {% if cases %}
         <table style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr>
@@ -33,10 +33,8 @@
             <tbody>
                 {% for case in cases %}
                 <tr style="transition: background 0.2s;">
-                    <!-- Case ID -->
                     <td style="padding: 16px 24px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05);">#{{ case.id }}</td>
                     
-                    <!-- Risk Level Badges -->
                     <td style="padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05);">
                         {% if case.risk_score > 85 %}
                             <span style="color: var(--accent-red); background: rgba(239, 68, 68, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Critical</span>
@@ -47,27 +45,24 @@
                         {% endif %}
                     </td>
                     
-                    <!-- Category & Loss -->
                     <td style="padding: 16px 24px; color: var(--accent-blue); border-bottom: 1px solid rgba(255,255,255,0.05);">{{ case.type }}</td>
                     <td style="padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05);">R {{ case.loss }}</td>
                     
-                    <!-- Action Link Route -->
                     <td style="padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                        <a href="/investigation/{{ case.id }}" style="background: var(--accent-blue); color: white; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; transition: background 0.2s; display: inline-block;">
+                        <a href="{{ url_for('investigations.investigation_detail', id=case.id) }}" style="background: var(--accent-blue); color: white; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; transition: background 0.2s; display: inline-block;">
                             View Details
                         </a>
-                    </td>
-                </tr>
-                {% else %}
-                <!-- Fallback if no cases exist -->
-                <tr>
-                    <td colspan="5" style="padding: 32px; text-align: center; color: var(--text-secondary);">
-                        No active investigation logs found in the database.
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <div style="padding: 48px; text-align: center; color: var(--text-secondary);">
+            <div style="font-size: 32px; margin-bottom: 8px;">📭</div>
+            No active investigation logs found in the database.
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

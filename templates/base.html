@@ -3,38 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
     <title>{% block title %}MAZI Fraud AI{% endblock %}</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
     <style>
         :root {
-            /* Updated Core Backgrounds */
-            --bg-base: #290E4A;        /* Deep Purple Background */
-            --bg-surface: rgba(66, 80, 166, 0.15); /* Transparent Indigo for cards */
-            --bg-border: #4250A6;      /* Indigo borders */
-            
-            /* Updated Accents */
-            --accent-blue: #4250A6;    /* Indigo */
-            --accent-green: #47A04A;   /* Green */
-            --accent-red: #ef4444;     
-            --accent-orange: #f59e0b;  
-            
-            /* Text Colors */
+            --bg-base: #290E4A;
+            --bg-surface: rgba(66, 80, 166, 0.15);
+            --bg-border: #4250A6;
+
+            --accent-blue: #4250A6;
+            --accent-green: #47A04A;
+            --accent-red: #ef4444;
+            --accent-orange: #f59e0b;
+
             --text-primary: #f8fafc;
             --text-secondary: #cbd5e1;
-            
-            /* Sizing */
+
             --sidebar-width: 280px;
         }
 
-        /* Global Reset */
         * {
             margin: 0;
             padding: 0;
@@ -50,7 +47,11 @@
             overflow-x: hidden;
         }
 
-        /* 3. Global Dashboard Layout */
+        .layout {
+            display: flex;
+            width: 100%;
+        }
+
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--bg-surface);
@@ -58,7 +59,6 @@
             display: flex;
             flex-direction: column;
             padding: 32px 20px;
-            /* Curly Sidebar */
             border-top-right-radius: 30px;
             border-bottom-right-radius: 30px;
             margin-right: 20px;
@@ -67,17 +67,32 @@
         .sidebar-logo {
             font-size: 26px;
             font-weight: 700;
-            color: var(--text-primary);
             margin-bottom: 40px;
             padding-left: 12px;
-            letter-spacing: -0.5px;
         }
 
         .sidebar-logo span {
             color: var(--accent-green);
         }
 
-        /* Advanced Nav Link with Emojis */
+        .user-panel {
+            margin-bottom: 24px;
+            padding: 16px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--bg-border);
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-role {
+            color: var(--accent-green);
+            font-size: 13px;
+        }
+
         .nav-link {
             display: flex;
             align-items: center;
@@ -85,98 +100,204 @@
             padding: 14px 20px;
             color: var(--text-secondary);
             text-decoration: none;
-            border-radius: 30px; /* Curly buttons */
+            border-radius: 30px;
             margin-bottom: 8px;
             font-weight: 500;
-            font-size: 15px;
             transition: all 0.3s ease;
-            border: 1px solid transparent;
         }
 
-        .nav-link:hover, .nav-link.active {
+        .nav-link:hover,
+        .nav-link.active {
             background-color: var(--accent-blue);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 15px rgba(66, 80, 166, 0.4);
+            color: white;
         }
 
-        /* Divider for Sign Out */
         .nav-divider {
             height: 1px;
-            background-color: var(--bg-border);
-            margin: 16px 20px;
+            background: var(--bg-border);
+            margin: 16px 0;
         }
 
-        .nav-link.sign-out {
+        .sign-out {
             color: var(--accent-red);
-        }
-
-        .nav-link.sign-out:hover {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--accent-red);
-            border-color: rgba(239, 68, 68, 0.3);
-            box-shadow: none;
         }
 
         .main-content {
             flex: 1;
-            display: flex;
-            flex-direction: column;
             padding: 24px;
-            width: calc(100% - var(--sidebar-width));
         }
 
-        /* Card and Table styles */
-        .metric-card {
-            background: var(--bg-surface);
-            padding: 24px;
-            border-radius: 20px; /* Curly cards */
-            border: 1px solid var(--bg-border);
-        }
-        
-        .metric-title {
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-        
-        .metric-value {
-            font-size: 28px;
-            font-weight: 700;
+        .mobile-toggle {
+            display: none;
         }
 
-        .table-container {
-            background: var(--bg-surface);
-            border: 1px solid var(--bg-border);
-            border-radius: 20px; /* Curly tables */
-            padding: 20px;
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
+
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
 
+<div class="layout">
+
     <aside class="sidebar">
-        <div class="sidebar-logo">MAZI <span>AI</span></div>
+
+        <div class="sidebar-logo">
+            MAZI <span>AI</span>
+        </div>
+
+        {% if session.get('user_id') %}
+        <div class="user-panel">
+            <div class="user-name">
+                {{ session.get('username', 'User') }}
+            </div>
+
+            <div class="user-role">
+                {{ session.get('role', 'Customer') }}
+            </div>
+        </div>
+        {% endif %}
+
         <nav>
-            <a href="/" class="nav-link active"><span>🏠</span> System Radar</a>
-            <a href="/transactions" class="nav-link"><span>💳</span> Transactions</a>
-            <a href="/investigations" class="nav-link"><span>🔍</span> Investigation Logs</a>
-            <a href="/analytics" class="nav-link"><span>📊</span> Model Analytics</a>
-            <a href="/risk-engine" class="nav-link"><span>🛡</span> Risk Engine</a>
-            <a href="/reports" class="nav-link"><span>📄</span> Reports</a>
-            <a href="/settings" class="nav-link"><span>⚙</span> Settings</a>
-            
+
+            <!-- Dashboard -->
+            <a href="{{ url_for('dashboard.dashboard') }}"
+                class="nav-link {% if request.endpoint == 'dashboard.dashboard' %}active{% endif %}"
+            >
+                <span>🏠</span>
+                Dashboard
+            </a>
+
+            <!-- ADMIN MENU -->
+            {% if session.get('role') == 'Admin' %}
+
+            <a href="{{ url_for('audit_logs.audit_logs') }}" class="nav-link {% if request.endpoint == 'audit_logs.audit_logs' %}active{% endif %}">
+                <span>📜</span>
+                Audit Logs
+            </a>
+
+            <a href="{{ url_for('reports.reports') }}" class="nav-link {% if request.endpoint == 'reports.reports' %}active{% endif %}">
+                <span>📄</span>
+                Reports
+            </a>
+
+            <!-- FIXED HERE: Changed 'transactions.transactions' to 'transactions.transactions_list' -->
+            <a href="{{ url_for('transactions.transactions_list') }}" class="nav-link {% if request.endpoint == 'transactions.transactions_list' %}active{% endif %}">
+                <span>💳</span>
+                Transactions
+            </a>
+
+            <a href="{{ url_for('investigations.investigations') }}" class="nav-link {% if request.endpoint == 'investigations.investigations' %}active{% endif %}">
+                <span>🔍</span>
+                Investigations
+            </a>
+
+            <a href="{{ url_for('analytics.analytics') }}" class="nav-link {% if request.endpoint == 'analytics.analytics' %}active{% endif %}">
+                <span>📊</span>
+                Analytics
+            </a>
+
+            <a href="{{ url_for('settings.settings') }}" class="nav-link {% if request.endpoint == 'settings.settings' %}active{% endif %}">
+                <span>⚙️</span>
+                Settings
+            </a>
+
+            <!-- MANAGER MENU -->
+            {% elif session.get('role') == 'Manager' %}
+
+            <a href="{{ url_for('investigations.investigations') }}" class="nav-link {% if request.endpoint == 'investigations.investigations' %}active{% endif %}">
+                <span>🔍</span>
+                Investigations
+            </a>
+
+            <a href="{{ url_for('analytics.analytics') }}" class="nav-link {% if request.endpoint == 'analytics.analytics' %}active{% endif %}">
+                <span>📊</span>
+                Analytics
+            </a>
+
+            <!-- CUSTOMER MENU -->
+            {% else %}
+
+            <!-- FIXED HERE: Changed 'transactions.transactions' to 'transactions.transactions_list' -->
+            <a href="{{ url_for('transactions.transactions_list') }}" class="nav-link {% if request.endpoint == 'transactions.transactions_list' %}active{% endif %}">
+                <span>💳</span>
+                My Transactions
+            </a>
+
+            {% endif %}
+
             <div class="nav-divider"></div>
-            
-            <a href="/login" class="nav-link sign-out"><span>🚪</span> Sign Out</a>
+
+            <a href="{{ url_for('auth.logout') }}" class="nav-link sign-out">
+                <span>🚪</span>
+                Logout
+            </a>
+
         </nav>
+
     </aside>
 
     <main class="main-content">
-        {% block content %}
-        {% endblock %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+
+            <div style="position:fixed;top:20px;right:20px;z-index:2000;">
+
+                {% for category, message in messages %}
+
+                <div
+                    class="toast"
+                    style="
+                        background:
+                        {% if category == 'error' %}
+                            var(--accent-red)
+                        {% else %}
+                            var(--accent-green)
+                        {% endif %};
+                        color:white;
+                        padding:12px 18px;
+                        margin-bottom:10px;
+                        border-radius:12px;
+                        animation:slideIn .3s ease;
+                    "
+                >
+                    {{ message }}
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
     </main>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+{% block extra_js %}{% endblock %}
 
 </body>
 </html>

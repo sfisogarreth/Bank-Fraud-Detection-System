@@ -3,169 +3,180 @@
 {% block title %}MAZI Analytics{% endblock %}
 
 {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="page-header">
-    <h1>📊 Fraud Analytics Center</h1>
-    <p>AI-driven fraud trends and risk intelligence</p>
+<div style="padding: 10px 24px 24px 24px; border-bottom: 1px solid var(--bg-border); display: flex; justify-content: space-between; align-items: center;">
+    <h1 style="margin:0; font-size: 24px; color: var(--text-primary);">📊 Fraud Analytics Center</h1>
+    <div style="font-size: 14px; color: var(--text-secondary);">
+        AI-driven fraud trends and risk intelligence
+    </div>
 </div>
 
-<div class="analytics-grid">
-
-    <div class="analytics-card">
-        <h3>Total Fraud Attempts</h3>
-        <div class="big-number">247</div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 24px;">
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">Total Fraud Attempts</div>
+        <div style="font-size: 32px; font-weight: 700; color: var(--accent-red);">{{ stats.total_fraud }}</div>
+        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">From {{ stats.total_transactions }} total transactions</div>
     </div>
 
-    <div class="analytics-card">
-        <h3>Fraud Prevented</h3>
-        <div class="big-number success">R 2.4M</div>
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">Fraud Prevented</div>
+        <div style="font-size: 32px; font-weight: 700; color: var(--accent-green);">R {{ "%.2f"|format(stats.fraud_prevented) }}</div>
+        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Confirmed fraud blocked</div>
     </div>
 
-    <div class="analytics-card">
-        <h3>Model Accuracy</h3>
-        <div class="big-number info">98.2%</div>
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">Model Accuracy</div>
+        <div style="font-size: 32px; font-weight: 700; color: var(--accent-blue);">{{ accuracy }}%</div>
+        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Confirmed vs Flagged ratio</div>
     </div>
 
-    <div class="analytics-card">
-        <h3>False Positives</h3>
-        <div class="big-number warning">1.8%</div>
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">False Positives</div>
+        <div style="font-size: 32px; font-weight: 700; color: var(--accent-orange);">{{ stats.false_positives }}</div>
+        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Safe but high risk score</div>
     </div>
-
 </div>
 
-<div class="chart-row">
-
-    <div class="chart-card">
-        <h3>Fraud Trend</h3>
-        <canvas id="fraudTrend"></canvas>
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; padding: 0 24px 24px 24px;">
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 16px;">7-Day Fraud Trends</h3>
+        <div style="position: relative; height: 250px;">
+            <canvas id="fraudTrend"></canvas>
+        </div>
     </div>
 
-    <div class="chart-card">
-        <h3>Fraud Categories</h3>
-        <canvas id="fraudCategories"></canvas>
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 16px;">Attack Vectors</h3>
+        <div style="position: relative; height: 250px;">
+            <canvas id="fraudCategories"></canvas>
+        </div>
     </div>
 
-</div>
-
-<div class="chart-row">
-
-    <div class="chart-card">
-        <h3>Risk Distribution</h3>
-        <canvas id="riskDistribution"></canvas>
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 16px;">Risk Distribution</h3>
+        <div style="position: relative; height: 250px;">
+            <canvas id="riskDistribution"></canvas>
+        </div>
     </div>
 
-    <div class="chart-card">
-        <h3>Detection Performance</h3>
-        <canvas id="performanceChart"></canvas>
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 16px;">Detection Performance</h3>
+        <div style="position: relative; height: 250px;">
+            <canvas id="performanceChart"></canvas>
+        </div>
     </div>
-
 </div>
 
 <script>
+    const colorText = '#cbd5e1';
+    const colorGrid = 'rgba(255, 255, 255, 0.05)';
+    const colorBlue = '#4250A6';
+    const colorGreen = '#47A04A';
+    const colorRed = '#ef4444';
+    const colorOrange = '#f59e0b';
 
-new Chart(document.getElementById("fraudTrend"), {
+    Chart.defaults.color = colorText;
+    Chart.defaults.font.family = "'Inter', sans-serif";
 
-    type: "line",
+    const trendLabels = {{ trend_labels|tojson }};
+    const trendData = {{ trend_data|tojson }};
+    
+    new Chart(document.getElementById("fraudTrend"), {
+        type: "line",
+        data: {
+            labels: trendLabels.length > 0 ? trendLabels : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+            datasets: [{
+                label: "Fraud Cases",
+                data: trendData.length > 0 ? trendData : [12,19,9,25,17,10,15],
+                borderColor: colorBlue,
+                backgroundColor: "rgba(66, 80, 166, 0.2)",
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: colorGrid }, beginAtZero: true },
+                x: { grid: { display: false } }
+            }
+        }
+    });
 
-    data: {
+    new Chart(document.getElementById("fraudCategories"), {
+        type: "doughnut",
+        data: {
+            labels: ["Account Takeover", "Card Fraud", "AML", "Identity Theft"],
+            datasets: [{
+                data: [35, 30, 20, 15],
+                backgroundColor: [colorRed, colorBlue, colorGreen, colorOrange],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+        }
+    });
 
-        labels: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    const riskDist = {{ risk_dist|tojson }};
+    const riskLevels = ['Critical', 'High', 'Medium', 'Low'];
+    const riskCounts = [
+        riskDist['Critical'] || 0,
+        riskDist['High'] || 0,
+        riskDist['Medium'] || 0,
+        riskDist['Low'] || 0
+    ];
+    
+    new Chart(document.getElementById("riskDistribution"), {
+        type: "bar",
+        data: {
+            labels: riskLevels,
+            datasets: [{
+                label: "Case Volume",
+                data: riskCounts,
+                backgroundColor: [colorRed, colorOrange, colorBlue, colorGreen],
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: colorGrid }, beginAtZero: true },
+                x: { grid: { display: false } }
+            }
+        }
+    });
 
-        datasets: [{
-            label: "Fraud Cases",
-            data: [12,19,9,25,17,10,15],
-            borderColor: "#4f7cff",
-            backgroundColor: "rgba(79,124,255,0.2)",
-            fill: true
-        }]
-    }
-});
-
-
-new Chart(document.getElementById("fraudCategories"), {
-
-    type: "doughnut",
-
-    data: {
-
-        labels: [
-            "Account Takeover",
-            "Card Fraud",
-            "AML",
-            "Identity Theft"
-        ],
-
-        datasets: [{
-            data: [35,30,20,15],
-            backgroundColor: [
-                "#ff4d4d",
-                "#4f7cff",
-                "#00d084",
-                "#ffaa00"
-            ]
-        }]
-    }
-});
-
-
-new Chart(document.getElementById("riskDistribution"), {
-
-    type: "bar",
-
-    data: {
-
-        labels: [
-            "Low",
-            "Medium",
-            "High",
-            "Critical"
-        ],
-
-        datasets: [{
-            data: [42,27,18,8],
-            backgroundColor: [
-                "#00d084",
-                "#4f7cff",
-                "#ffaa00",
-                "#ff4d4d"
-            ]
-        }]
-    }
-});
-
-
-new Chart(document.getElementById("performanceChart"), {
-
-    type: "radar",
-
-    data: {
-
-        labels: [
-            "Precision",
-            "Recall",
-            "Accuracy",
-            "F1 Score",
-            "Sensitivity"
-        ],
-
-        datasets: [{
-
-            label: "AI Model",
-
-            data: [
-                95,
-                92,
-                98,
-                94,
-                91
-            ],
-
-            borderColor: "#00d084",
-            backgroundColor: "rgba(0,208,132,0.3)"
-        }]
-    }
-});
-
+    new Chart(document.getElementById("performanceChart"), {
+        type: "radar",
+        data: {
+            labels: ["Precision", "Recall", "Accuracy", "F1 Score", "Sensitivity"],
+            datasets: [{
+                label: "AI Model",
+                data: [95, 92, {{ accuracy }}, 94, 91],
+                borderColor: colorGreen,
+                backgroundColor: "rgba(71, 160, 74, 0.3)",
+                pointBackgroundColor: colorGreen
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    grid: { color: colorGrid },
+                    pointLabels: { color: colorText },
+                    ticks: { display: false, backdropColor: 'transparent' }
+                }
+            }
+        }
+    });
 </script>
-
 {% endblock %}

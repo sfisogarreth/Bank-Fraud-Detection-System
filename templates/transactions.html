@@ -1,31 +1,81 @@
 {% extends "base.html" %}
 
+{% block title %}Transaction Explorer{% endblock %}
+
 {% block content %}
+<div style="padding: 10px 24px 24px 24px; border-bottom: 1px solid var(--bg-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <h1 style="margin:0; font-size: 24px; color: var(--text-primary);">Transaction Explorer</h1>
+    <div style="font-size: 14px; color: var(--text-secondary);">
+        Live feed of all system transactions
+    </div>
+</div>
 
-<h1>Transaction Explorer</h1>
-
-<table border="1">
-
-    <tr>
-        <th>ID</th>
-        <th>Account</th>
-        <th>Amount</th>
-        <th>Risk Score</th>
-        <th>Status</th>
-    </tr>
-
-    {% for tx in transactions %}
-    <tr>
-        <td>
-            <a href="/investigation/{{ tx.id }}">{{ tx.id }}</a>
-        </td>
-        <td>{{ tx.account_number }}</td>
-        <td>R {{ tx.amount }}</td>
-        <td>{{ tx.risk_score }}</td>
-        <td>{{ tx.status }}</td>
-    </tr>
-    {% endfor %}
-
-</table>
-
+<div style="padding: 0 24px;">
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 0; overflow: hidden;">
+        
+        <div style="padding: 20px 24px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.2);">
+            <div style="color: var(--accent-green); font-weight: bold; font-size: 18px;">
+                Recent Transactions
+            </div>
+        </div>
+        
+        {% if transactions %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">ID</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Account</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Amount</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Location</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Risk Score</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Status</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in transactions %}
+                    <tr style="transition: background 0.2s;">
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            <a href="{{ url_for('investigations.investigation_detail', id=tx.id) }}" style="color: #60a5fa; font-weight: 600; text-decoration: none;">
+                                {{ tx.transaction_id }}
+                            </a>
+                        </td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);">{{ tx.account_number }}</td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); font-weight: 600;">R {{ "%.2f"|format(tx.amount) }}</td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);">{{ tx.location }}</td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            {% if tx.risk_score > 75 %}
+                                <span style="color: var(--accent-red); font-weight: 700;">{{ tx.risk_score }}</span>
+                            {% elif tx.risk_score > 40 %}
+                                <span style="color: var(--accent-orange); font-weight: 700;">{{ tx.risk_score }}</span>
+                            {% else %}
+                                <span style="color: var(--accent-green); font-weight: 700;">{{ tx.risk_score }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            {% if tx.status == 'Flagged' %}
+                                <span style="color: var(--accent-orange); background: rgba(245,158,11,0.1); padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">{{ tx.status }}</span>
+                            {% elif tx.status == 'Confirmed_Fraud' %}
+                                <span style="color: var(--accent-red); background: rgba(239,68,68,0.1); padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">{{ tx.status }}</span>
+                            {% elif tx.status == 'Safe' %}
+                                <span style="color: var(--accent-green); background: rgba(71,160,74,0.1); padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">{{ tx.status }}</span>
+                            {% else %}
+                                <span style="color: #60a5fa; background: rgba(96,165,250,0.1); padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">{{ tx.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-secondary); font-size: 12px;">{{ tx.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 48px 20px; color: var(--text-secondary);">
+            <div style="font-size: 32px; margin-bottom: 8px;">📭</div>
+            No transactions found in the database.
+        </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

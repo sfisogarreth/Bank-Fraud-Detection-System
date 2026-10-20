@@ -4,90 +4,138 @@
 
 {% block content %}
 
-<div class="page-header">
-    <h1>⚙ System Settings</h1>
-    <p>Manage the MAZI Fraud Intelligence Platform</p>
+<div style="padding: 10px 24px 24px 24px; border-bottom: 1px solid var(--bg-border); display: flex; justify-content: space-between; align-items: center;">
+    <h1 style="margin:0; font-size: 24px; color: var(--text-primary);">⚙ System Settings</h1>
+    <div style="font-size: 14px; color: var(--text-secondary);">
+        Manage the MAZI Fraud Intelligence Platform
+    </div>
 </div>
 
-<div class="settings-container">
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; padding: 24px;">
 
-    <div class="settings-card">
-
-        <h3>Profile</h3>
-
-        <label>Operator Name</label>
-
-        <input
-            type="text"
-            value="Fraud Analyst"
-        >
-
-        <label>Email</label>
-
-        <input
-            type="email"
-            value="analyst@mazi.ai"
-        >
-
-        <button class="save-btn">
-            Save Changes
-        </button>
-
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <h3 style="color: var(--accent-blue); margin-bottom: 20px; font-size: 18px;">👤 Operator Profile</h3>
+        <form action="{{ url_for('settings.settings') }}" method="POST">
+            
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">Operator Name</label>
+                <input type="text" name="operator_name" value="{{ settings.operator_name|default('Fraud Analyst') }}" 
+                    style="width: 100%; padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--bg-border); border-radius: 10px; color: var(--text-primary); font-size: 14px; outline: none;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">Email</label>
+                <input type="email" name="email" value="{{ settings.email|default('analyst@mazi.ai') }}" 
+                    style="width: 100%; padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--bg-border); border-radius: 10px; color: var(--text-primary); font-size: 14px; outline: none;">
+            </div>
+            <button type="submit" style="background: var(--accent-blue); color: white; border: none; padding: 10px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">
+                Save Profile
+            </button>
+        </form>
     </div>
 
-    <div class="settings-card">
-
-        <h3>AI Risk Engine</h3>
-
-        <label>Fraud Threshold</label>
-
-        <input
-            type="range"
-            min="0"
-            max="100"
-            value="85"
-        >
-
-        <p>
-            Current Threshold:
-            <strong>85</strong>
-        </p>
-
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <h3 style="color: var(--accent-red); margin-bottom: 20px; font-size: 18px;">🤖 AI Risk Engine</h3>
+        <form action="{{ url_for('settings.settings') }}" method="POST">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                    Fraud Threshold: <span id="thresholdValue" style="color: var(--accent-blue); font-weight: bold;">{{ settings.fraud_threshold|default(85) }}</span>
+                </label>
+                <input type="range" name="threshold" min="0" max="100" value="{{ settings.fraud_threshold|default(85) }}" 
+                    oninput="document.getElementById('thresholdValue').textContent = this.value"
+                    style="width: 100%; accent-color: var(--accent-blue); margin-top: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
+                    <span>Lenient (0)</span>
+                    <span>Strict (100)</span>
+                </div>
+            </div>
+            <div style="margin-bottom: 20px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid var(--bg-border);">
+                <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                    <strong style="color: var(--text-primary);">Current:</strong> Transactions scoring above {{ settings.fraud_threshold|default(85) }} will be automatically flagged for review.
+                </div>
+            </div>
+            <button type="submit" style="background: var(--accent-blue); color: white; border: none; padding: 10px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">
+                Save Threshold
+            </button>
+        </form>
     </div>
 
-    <div class="settings-card">
-
-        <h3>Notifications</h3>
-
-        <input type="checkbox" checked>
-        Email Alerts
-
-        <br><br>
-
-        <input type="checkbox" checked>
-        Critical Fraud Alerts
-
-        <br><br>
-
-        <input type="checkbox">
-        Weekly Reports
-
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <h3 style="color: var(--accent-green); margin-bottom: 20px; font-size: 18px;">🔔 Notifications</h3>
+        <form action="{{ url_for('settings.settings') }}" method="POST">
+            <div style="margin-bottom: 16px;">
+                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                    <input type="checkbox" name="email_alerts" value="1" {% if settings.email_alerts|default(1) == 1 %}checked{% endif %}>
+                    <div>
+                        <div style="font-size: 14px; color: var(--text-primary);">Email Alerts</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">Receive daily summary emails</div>
+                    </div>
+                </label>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                    <input type="checkbox" name="critical_alerts" value="1" {% if settings.critical_alerts|default(1) == 1 %}checked{% endif %}>
+                    <div>
+                        <div style="font-size: 14px; color: var(--text-primary);">Critical Fraud Alerts</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">Instant alerts for risk > 90</div>
+                    </div>
+                </label>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                    <input type="checkbox" name="weekly_reports" value="1" {% if settings.weekly_reports|default(0) == 1 %}checked{% endif %}>
+                    <div>
+                        <div style="font-size: 14px; color: var(--text-primary);">Weekly Reports</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">Automated Sunday summaries</div>
+                    </div>
+                </label>
+            </div>
+            <button type="submit" style="background: var(--accent-blue); color: white; border: none; padding: 10px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">
+                Save Notifications
+            </button>
+        </form>
     </div>
 
-    <div class="settings-card">
-
-        <h3>System Status</h3>
-
-        <p>🟢 Fraud Engine Online</p>
-
-        <p>🟢 SQLite Database Active</p>
-
-        <p>🟢 Model Loaded Successfully</p>
-
-        <p>🟢 Monitoring Enabled</p>
-
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <h3 style="color: var(--accent-orange); margin-bottom: 20px; font-size: 18px;">📡 System Status</h3>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid var(--bg-border);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="width: 10px; height: 10px; background: var(--accent-green); border-radius: 50%; box-shadow: 0 0 8px var(--accent-green);"></span>
+                    <span style="font-size: 14px; color: var(--text-primary);">Fraud Engine</span>
+                </div>
+                <span style="font-size: 12px; color: var(--accent-green); font-weight: 600;">Online</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid var(--bg-border);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="width: 10px; height: 10px; background: var(--accent-green); border-radius: 50%; box-shadow: 0 0 8px var(--accent-green);"></span>
+                    <span style="font-size: 14px; color: var(--text-primary);">SQLite Database</span>
+                </div>
+                <span style="font-size: 12px; color: var(--accent-green); font-weight: 600;">{{ db_count }} records</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid var(--bg-border);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="width: 10px; height: 10px; background: {% if model_loaded %}var(--accent-green){% else %}var(--accent-red){% endif %}; border-radius: 50%; box-shadow: 0 0 8px {% if model_loaded %}var(--accent-green){% else %}var(--accent-red){% endif %};"></span>
+                    <span style="font-size: 14px; color: var(--text-primary);">AI Model</span>
+                </div>
+                <span style="font-size: 12px; color: {% if model_loaded %}var(--accent-green){% else %}var(--accent-red){% endif %}; font-weight: 600;">
+                    {% if model_loaded %}Loaded{% else %}Not Found{% endif %}
+                </span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid var(--bg-border);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="width: 10px; height: 10px; background: var(--accent-green); border-radius: 50%; box-shadow: 0 0 8px var(--accent-green);"></span>
+                    <span style="font-size: 14px; color: var(--text-primary);">Monitoring</span>
+                </div>
+                <span style="font-size: 12px; color: var(--accent-green); font-weight: 600;">Active</span>
+            </div>
+        </div>
+        <div style="margin-top: 20px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid var(--bg-border);">
+            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                <strong style="color: var(--text-primary);">Version:</strong> MAZI v1.0.2<br>
+                <strong style="color: var(--text-primary);">Last Updated:</strong> {{ now|default('2026-08-17') }}
+            </div>
+        </div>
     </div>
 
 </div>
-
 {% endblock %}

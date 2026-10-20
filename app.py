@@ -1,95 +1,101 @@
 import os
 import logging
-from datetime import datetime
-from flask import Flask, render_template, jsonify, request, redirect
-from dotenv import load_dotenv
+from logging.handlers import RotatingFileHandler
+from datetime import timedelta
+from flask import Flask, redirect, url_for, render_template, session
+from flask_wtf.csrf import CSRFProtect
+from config import config_by_name
 
-# Load environment variables
-load_dotenv()
+csrf = CSRFProtect()
+os.makedirs('logs', exist_ok=True)
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 
-# Logging setup
-os.makedirs("logs", exist_ok=True)
+def create_app(config_name='default'):
+    app = Flask(__name__)
+    app.config['WTF_CSRF_ENABLED'] = False
+    app.config['WTF_CSRF_CHECK_DEFAULT'] = False
+    app.config.from_object(config_by_name[config_name])
+    app.secret_key = app.config['SECRET_KEY']
+    
+    # CSRF Protection — ALL forms must include {{ csrf_token() }}
+    csrf.init_app(app)
+    
+    # Session Security
+    app.config.update(
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='Lax',
+        PERMANENT_SESSION_LIFETIME=timedelta(hours=2)
+    )
+    
+    # Logging
+    if not app.debug:
+        file_handler = RotatingFileHandler(
+            'logs/mazi.log', maxBytes=102400, backupCount=10
+        )
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        app.logger.addHandler(file_handler)
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('MAZI Fraud AI startup')
+    
+    # Blueprints
+    from routes.auth import auth_bp
+    from routes.dashboard import dashboard_bp
+    from routes.transactions import transactions_bp
+    from routes.investigations import investigations_bp
+    from routes.analytics import analytics_bp
+    from routes.settings import settings_bp
+    from routes.api import api_bp
+    from routes.users import users_bp
+    from routes.audit_logs import audit_logs_bp
+    from routes.reports import reports_bp
+    
+    
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
+    app.register_blueprint(transactions_bp, url_prefix='/transactions')
+    app.register_blueprint(investigations_bp, url_prefix='/investigations')
+    app.register_blueprint(analytics_bp, url_prefix='/analytics')
+    app.register_blueprint(settings_bp, url_prefix='/settings')
+    app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(users_bp,url_prefix="/users")
+    app.register_blueprint(audit_logs_bp,url_prefix="/audit-logs")
+    app.register_blueprint(reports_bp,url_prefix="/reports")
+    
+    @app.route('/')
+    def index():
+        return redirect(url_for('dashboard.dashboard'))
+    
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_template('coming_soon.html', page_name='Page Not Found'), 404
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        app.logger.error(f'Server Error: {error}')
+        return render_template('coming_soon.html', page_name='Server Error'), 500
+    
+    @app.route('/health')
+    def health():
+        return {'status': 'healthy', 'version': '1.0.2', 'database': 'sqlite'}, 200
+    @app.context_processor
+    def inject_user():
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+        return {
 
-# Import blueprints
-from routes.auth import auth_bp
-from routes.dashboard import dashboard_bp
-from routes.analytics import analytics_bp
-from routes.investigations import investigations_bp
-from routes.transactions import transactions_bp
+            "current_user":
+                session.get("username"),
 
-# Register with URL prefixes (professional API structure)
-app.register_blueprint(auth_bp, url_prefix='/auth')
-app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
-app.register_blueprint(analytics_bp, url_prefix='/analytics')
-app.register_blueprint(investigations_bp, url_prefix='/investigations')
-app.register_blueprint(transactions_bp, url_prefix='/transactions')
+            "current_role":
+                session.get("role")
 
-# Root route - redirect to dashboard
-@app.route("/")
-def index():
-    return redirect("/dashboard/")
+        }
+    
+    return app
 
-# Database health check
-@app.route("/db-test")
-def db_test():
-    try:
-        from services.transaction_service import get_db_connection
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM transactions")
-        count = cursor.fetchone()[0]
-        conn.close()
-        return jsonify({
-            "status": "connected",
-            "database": "SQLite",
-            "transactions_count": count,
-            "message": "✅ Database Connected Successfully"
-        })
-    except Exception as e:
-        app.logger.error(f"Database error: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
 
-# Health check (required for deployment monitoring)
-@app.route("/health")
-def health():
-    return jsonify({
-        "status": "healthy",
-        "service": "mazi-fraud-api",
-        "timestamp": datetime.now().isoformat(),
-        "database": "SQLite"
-    })
-
-# Coming soon pages (keep your existing routes)
-@app.route("/risk-engine")
-def risk_engine():
-    return render_template("coming_soon.html", page_name="Risk Engine")
-
-@app.route("/reports")
-def reports():
-    return render_template("coming_soon.html", page_name="System Reports")
-
-@app.route("/settings")
-def settings():
-    return render_template("coming_soon.html", page_name="System Settings")
-
-# Global error handlers
-@app.errorhandler(404)
-def not_found(error):
-    return render_template("coming_soon.html", page_name="Page Not Found"), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    app.logger.error(f"Server error: {error}")
-    return jsonify({"error": "Internal server error"}), 500
-
-if __name__ == "__main__":
-    # Use host='0.0.0.0' so it works on your network for demos
-    app.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ == '__main__':
+    app = create_app('development')
+    app.run(debug=True, host='0.0.0.0', port=5000)

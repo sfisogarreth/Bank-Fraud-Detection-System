@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}
+User Management
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>User Management</h1>
+    <p>Create, lock and manage accounts.</p>
+</div>
+
+<!-- CREATE USER -->
+
+<div class="table-container" style="margin-bottom:30px;">
+
+    <h2>Create User</h2>
+
+    <br>
+
+    {{ url_for('users.create_user') }}
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+        <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            required
+        >
+
+        <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            required
+        >
+
+        <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            required
+        >
+
+        <select name="role">
+
+            <option value="Customer">
+                Customer
+            </option>
+
+            <option value="Manager">
+                Manager
+            </option>
+
+            <option value="Admin">
+                Admin
+            </option>
+
+        </select>
+
+        <button type="submit">
+            Create User
+        </button>
+
+    </form>
+
+</div>
+
+<!-- USERS TABLE -->
+
+<div class="table-container">
+
+    <h2>System Users</h2>
+
+    <br>
+
+    <table
+        style="
+        width:100%;
+        border-collapse:collapse;
+        "
+    >
+
+        <thead>
+
+        <tr>
+
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Failed</th>
+            <th>Status</th>
+            <th>Last Login</th>
+            <th>Actions</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for user in users %}
+
+        <tr>
+
+            <td>{{ user.id }}</td>
+
+            <td>{{ user.username }}</td>
+
+            <td>{{ user.email }}</td>
+
+            <td>{{ user.role }}</td>
+
+            <td>{{ user.failed_attempts }}</td>
+
+            <td>
+
+                {% if user.account_locked %}
+
+                    🔒 Locked
+
+                {% else %}
+
+                    ✅ Active
+
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {{ user.last_login or 'Never' }}
+
+            </td>
+
+            <td>
+
+                {% if user.account_locked %}
+
+                ">
+
+                    Unlock
+
+                </a>
+
+                {% else %}
+
+                {{ url_for('users.lock_user',
+                        user_id=user.id) }}
+
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
