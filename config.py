@@ -9,6 +9,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key-change-me')
     DATABASE = os.path.join(BASE_DIR, 'mazi.db')
+    DB_PATH = DATABASE  # Alias for cross-module compatibility
     MODEL_PATH = os.getenv('MODEL_PATH', os.path.join(BASE_DIR, 'models', 'fraud_model.pkl'))
     FRAUD_THRESHOLD = int(os.getenv('FRAUD_THRESHOLD', 75))
     WTF_CSRF_ENABLED = True

@@ -7,7 +7,6 @@ def create_admin():
     password = "Maybe12345&"
     role = "Admin"
 
-    # Hash the password securely using werkzeug
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
     conn = get_db_connection()

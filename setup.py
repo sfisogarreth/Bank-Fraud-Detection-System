@@ -5,7 +5,6 @@ ext_modules = [
     Extension(
         "fast_math",
         ["fast_math.cpp"],
-        # This automatically finds where pybind11 is installed on your machine
         include_dirs=[pybind11.get_include()],
         language='c++'
     ),
@@ -13,5 +12,8 @@ ext_modules = [
 
 setup(
     name="fast_math",
+    version="1.0.0",
+    author="MAZI AI Engineering Team",
+    description="High-performance C++ risk calculation engine for MAZI AI Fraud Detection",
     ext_modules=ext_modules,
 )

@@ -1,0 +1,26 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.errorSquiggles": "disabled",
+    "C_Cpp.WorkspaceParsingPriority": "low",
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/build/**": true,
+        "**/models/**": true,
+        "**/logs/**": true,
+        "**/*.db": true,
+        "**/*.pkl": true,
+        "**/*.pyd": true
+    },
+    "search.exclude": {
+        "**/build": true,
+        "**/models": true,
+        "**/logs": true,
+        "**/*.db": true,
+        "**/*.pkl": true
+    }
+}

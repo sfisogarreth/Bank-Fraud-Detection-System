@@ -18,11 +18,7 @@
         </div>
 
         <form action="{{ url_for('auth.signup') }}" method="POST">
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{ csrf_token() }}"
-            >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             
             <div class="form-group" style="margin-bottom: 20px;">
                 <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">Legal Name / Operator Alias</label>
@@ -36,11 +32,13 @@
             
             <div class="form-group" style="margin-bottom: 28px;">
                 <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">Secure Passphrase</label>
-                <input type="password" name="password" class="form-control" placeholder="••••••••••••" required style="width: 100%; padding: 12px 16px; background-color: var(--bg-base); border: 1px solid var(--bg-border); border-radius: 6px; color: var(--text-primary); font-size: 14px; outline: none; transition: border-color 0.2s;">
-                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 6px; display: flex; gap: 4px;">
-                    <span style="color: var(--accent-green);">✓ 12+ Chars</span>
-                    <span>• 1 Uppercase</span>
-                    <span>• 1 Symbol</span>
+                <input type="password" id="signupPassword" name="password" class="form-control" placeholder="••••••••••••" required style="width: 100%; padding: 12px 16px; background-color: var(--bg-base); border: 1px solid var(--bg-border); border-radius: 6px; color: var(--text-primary); font-size: 14px; outline: none; transition: border-color 0.2s;">
+                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px;">
+                    <span id="req-len">• 8+ Chars</span>
+                    <span id="req-upper">• 1 Uppercase</span>
+                    <span id="req-lower">• 1 Lowercase</span>
+                    <span id="req-num">• 1 Number</span>
+                    <span id="req-sym">• 1 Symbol</span>
                 </div>
             </div>
 
@@ -65,4 +63,27 @@
         background-color: #2563eb !important; 
     }
 </style>
+
+<script>
+const pwInput = document.getElementById('signupPassword');
+if (pwInput) {
+    pwInput.addEventListener('input', function () {
+        const val = this.value;
+        const checks = [
+            { id: 'req-len', pass: val.length >= 8 },
+            { id: 'req-upper', pass: /[A-Z]/.test(val) },
+            { id: 'req-lower', pass: /[a-z]/.test(val) },
+            { id: 'req-num', pass: /\d/.test(val) },
+            { id: 'req-sym', pass: /[!@#$%^&*(),.?":{}|<>]/.test(val) }
+        ];
+        checks.forEach(c => {
+            const el = document.getElementById(c.id);
+            if (el) {
+                el.style.color = c.pass ? 'var(--accent-green)' : 'var(--text-secondary)';
+                el.style.fontWeight = c.pass ? '700' : '400';
+            }
+        });
+    });
+}
+</script>
 {% endblock %}

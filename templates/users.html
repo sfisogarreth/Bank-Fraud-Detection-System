@@ -1,171 +1,175 @@
 {% extends "base.html" %}
 
-{% block title %}
-User Management
-{% endblock %}
+{% block title %}MAZI AI - User Management{% endblock %}
 
 {% block content %}
-
-<div class="page-header">
-    <h1>User Management</h1>
-    <p>Create, lock and manage accounts.</p>
+<div style="padding: 10px 24px 24px 24px; border-bottom: 1px solid var(--bg-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+        <h1 style="margin:0; font-size: 24px; color: var(--text-primary);">👥 User & Operator Management</h1>
+        <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">
+            Create, lock, unlock, and manage role-based access control (RBAC) accounts
+        </div>
+    </div>
+    <div style="font-size: 13px; color: var(--accent-green); background: rgba(71, 160, 74, 0.12); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(71, 160, 74, 0.3); font-weight: 600;">
+        Total Registered Accounts: {{ users|length }}
+    </div>
 </div>
 
-<!-- CREATE USER -->
+<div style="padding: 0 24px;">
 
-<div class="table-container" style="margin-bottom:30px;">
+    <!-- CREATE USER FORM CARD (FIXED MISSING <form> TAG) -->
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px; margin-bottom: 24px;">
+        <h3 style="color: var(--accent-green); margin-top: 0; margin-bottom: 18px; font-size: 18px;">➕ Provision New Operator / User Account</h3>
 
-    <h2>Create User</h2>
+        <form action="{{ url_for('users.create_user') }}" method="POST" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: end;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-    <br>
+            <div>
+                <label style="display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600;">Username / Full Name</label>
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="e.g., Sfiso Analyst"
+                    required
+                    style="width: 100%; padding: 11px 14px; background: rgba(0,0,0,0.25); border: 1px solid var(--bg-border); border-radius: 10px; color: var(--text-primary); font-size: 14px; outline: none;"
+                >
+            </div>
 
-    {{ url_for('users.create_user') }}
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{ csrf_token() }}"
-            >
+            <div>
+                <label style="display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600;">Email Address</label>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="operator@mazi.ai"
+                    required
+                    style="width: 100%; padding: 11px 14px; background: rgba(0,0,0,0.25); border: 1px solid var(--bg-border); border-radius: 10px; color: var(--text-primary); font-size: 14px; outline: none;"
+                >
+            </div>
 
+            <div>
+                <label style="display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600;">Initial Password</label>
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="••••••••••••"
+                    required
+                    style="width: 100%; padding: 11px 14px; background: rgba(0,0,0,0.25); border: 1px solid var(--bg-border); border-radius: 10px; color: var(--text-primary); font-size: 14px; outline: none;"
+                >
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600;">Security Clearance Role</label>
+                <select
+                    name="role"
+                    style="width: 100%; padding: 11px 14px; background: #1e1634; border: 1px solid var(--bg-border); border-radius: 10px; color: var(--text-primary); font-size: 14px; outline: none;"
+                >
+                    <option value="Customer">Customer</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+
+            <div>
+                <button
+                    type="submit"
+                    style="width: 100%; padding: 11px 20px; background: var(--accent-blue); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s;"
+                >
+                    Create User
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- SEARCH FILTER -->
+    <div style="margin-bottom: 20px;">
         <input
             type="text"
-            name="username"
-            placeholder="Username"
-            required
+            id="userSearchInput"
+            placeholder="🔍 Search users by username, email, role, or status..."
+            style="width: 100%; padding: 12px 18px; border-radius: 12px; border: 1px solid var(--bg-border); background: rgba(30, 22, 52, 0.85); color: var(--text-primary); font-size: 14px; outline: none;"
         >
+    </div>
 
-        <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-        >
+    <!-- USERS TABLE CARD (FIXED LOCK & UNLOCK LINKS) -->
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 0; overflow: hidden;">
+        <div style="padding: 20px 24px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.2);">
+            <div style="color: var(--accent-green); font-weight: bold; font-size: 18px;">System Users Directory</div>
+        </div>
 
-        <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-        >
-
-        <select name="role">
-
-            <option value="Customer">
-                Customer
-            </option>
-
-            <option value="Manager">
-                Manager
-            </option>
-
-            <option value="Admin">
-                Admin
-            </option>
-
-        </select>
-
-        <button type="submit">
-            Create User
-        </button>
-
-    </form>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">ID</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Username</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Email</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Role</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Failed Attempts</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Status</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Last Login</th>
+                        <th style="padding: 14px 20px; text-align: left; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.15);">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr class="user-row" style="transition: background 0.2s;">
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: 600;">#{{ user.id }}</td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: 600; color: var(--text-primary);">{{ user.username }}</td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">{{ user.email }}</td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            {% if user.role == 'Admin' %}
+                                <span style="background: rgba(239, 68, 68, 0.15); color: var(--accent-red); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">Admin</span>
+                            {% elif user.role == 'Manager' %}
+                                <span style="background: rgba(245, 158, 11, 0.15); color: var(--accent-orange); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">Manager</span>
+                            {% else %}
+                                <span style="background: rgba(66, 80, 166, 0.25); color: #60a5fa; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">{{ user.role }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            {% if user.failed_attempts and user.failed_attempts > 0 %}
+                                <span style="color: var(--accent-orange); font-weight: 700;">{{ user.failed_attempts }} / 5</span>
+                            {% else %}
+                                <span style="color: var(--text-secondary);">0</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            {% if user.account_locked %}
+                                <span style="color: var(--accent-red); background: rgba(239, 68, 68, 0.12); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700;">🔒 Locked</span>
+                            {% else %}
+                                <span style="color: var(--accent-green); background: rgba(71, 160, 74, 0.12); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700;">✅ Active</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); font-size: 12px;">
+                            {{ user.last_login or 'Never' }}
+                        </td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            {% if user.account_locked %}
+                                <a href="{{ url_for('users.unlock_user', user_id=user.id) }}"
+                                   style="background: var(--accent-green); color: white; text-decoration: none; padding: 6px 14px; border-radius: 14px; font-size: 12px; font-weight: 600; display: inline-block; transition: opacity 0.2s;">
+                                    🔓 Unlock
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('users.lock_user', user_id=user.id) }}"
+                                   style="background: var(--accent-red); color: white; text-decoration: none; padding: 6px 14px; border-radius: 14px; font-size: 12px; font-weight: 600; display: inline-block; transition: opacity 0.2s;">
+                                    🔒 Lock
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 </div>
 
-<!-- USERS TABLE -->
-
-<div class="table-container">
-
-    <h2>System Users</h2>
-
-    <br>
-
-    <table
-        style="
-        width:100%;
-        border-collapse:collapse;
-        "
-    >
-
-        <thead>
-
-        <tr>
-
-            <th>ID</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Failed</th>
-            <th>Status</th>
-            <th>Last Login</th>
-            <th>Actions</th>
-
-        </tr>
-
-        </thead>
-
-        <tbody>
-
-        {% for user in users %}
-
-        <tr>
-
-            <td>{{ user.id }}</td>
-
-            <td>{{ user.username }}</td>
-
-            <td>{{ user.email }}</td>
-
-            <td>{{ user.role }}</td>
-
-            <td>{{ user.failed_attempts }}</td>
-
-            <td>
-
-                {% if user.account_locked %}
-
-                    🔒 Locked
-
-                {% else %}
-
-                    ✅ Active
-
-                {% endif %}
-
-            </td>
-
-            <td>
-
-                {{ user.last_login or 'Never' }}
-
-            </td>
-
-            <td>
-
-                {% if user.account_locked %}
-
-                ">
-
-                    Unlock
-
-                </a>
-
-                {% else %}
-
-                {{ url_for('users.lock_user',
-                        user_id=user.id) }}
-
-                {% endif %}
-
-            </td>
-
-        </tr>
-
-        {% endfor %}
-
-        </tbody>
-
-    </table>
-
-</div>
-
+<script>
+document.getElementById("userSearchInput").addEventListener("keyup", function () {
+    const filter = this.value.toLowerCase();
+    document.querySelectorAll(".user-row").forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
+    });
+});
+</script>
 {% endblock %}

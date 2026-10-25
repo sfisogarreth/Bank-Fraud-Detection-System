@@ -17,46 +17,49 @@
         <h1 style="margin:0; font-size: 24px; color: var(--text-primary);">MAZI Threat Command Center</h1>
         <div id="live-clock" style="font-size: 12px; color: var(--accent-green); margin-top: 4px; font-family: monospace;">Loading Time...</div>
     </div>
-    <div style="font-size: 14px; color: var(--accent-green); display: flex; align-items: center; font-weight: 600;">
-        <span class="status-indicator live-ring"></span> Core Engine Active (Auto-Sync On)
+    <div style="font-size: 14px; color: var(--accent-green); display: flex; align-items: center; gap: 10px; font-weight: 600;">
+        <span class="status-indicator live-ring" style="width: 10px; height: 10px; background: var(--accent-green); border-radius: 50%; display: inline-block;"></span>
+        Core Engine Active (Live Telemetry Sync On)
     </div>
 </div>
 
 <!-- KPI Widgets -->
 <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding: 24px; position: relative; z-index: 1;">
     
-    <div class="glass-card">
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px;">
         <div class="metric-title" style="color: var(--text-secondary); margin-bottom: 12px;">👁 Total Transactions</div>
-        <div class="metric-value" data-stat="transaction_count">{{ stats.transaction_count | default(0) }}</div>
+        <div class="metric-value" style="font-size: 28px; font-weight: 700;" data-stat="transaction_count">{{ stats.transaction_count | default(0) }}</div>
         <div style="font-size: 13px; color: var(--accent-green); margin-top: 8px;">Live Feed Active</div>
         <canvas class="sparkline" data-color="#47A04A" width="200" height="40" style="margin-top: 10px; width: 100%;"></canvas>
     </div>
     
-    <div class="glass-card" style="border-top: 3px solid var(--accent-red);">
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent-red); border-radius: 20px; padding: 20px;">
         <div class="metric-title" style="color: var(--text-secondary); margin-bottom: 12px;">🚨 Fraud Alerts</div>
-        <div class="metric-value" style="color: var(--accent-red);" data-stat="active_alerts">{{ stats.active_alerts | default(0) }}</div>
-        <div style="font-size: 13px; color: var(--accent-orange); margin-top: 8px;">{{ chart_data.alert_severity[0] }} Critical Interceptions</div>
+        <div class="metric-value" style="font-size: 28px; font-weight: 700; color: var(--accent-red);" data-stat="active_alerts">{{ stats.active_alerts | default(0) }}</div>
+        <div id="critical-interceptions-count" style="font-size: 13px; color: var(--accent-orange); margin-top: 8px;">{{ chart_data.alert_severity[0] | default(0) }} Critical Interceptions</div>
         <canvas class="sparkline" data-color="#ef4444" width="200" height="40" style="margin-top: 10px; width: 100%;"></canvas>
     </div>
     
-    <div class="glass-card">
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px;">
         <div class="metric-title" style="color: var(--text-secondary); margin-bottom: 12px;">🤖 AI Accuracy</div>
-        <div class="metric-value" style="color: var(--text-primary);">98.2%</div>
+        <div class="metric-value" style="font-size: 28px; font-weight: 700; color: var(--text-primary);">
+            {% if model_info.loaded and model_info.roc_auc %}{{ "%.1f"|format(model_info.roc_auc * 100) }}%{% else %}98.2%{% endif %}
+        </div>
         <div style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">FPR: {{ stats.false_positive_rate | default('1.8') }}%</div>
     </div>
     
-    <div class="glass-card" style="border-top: 3px solid var(--accent-green);">
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent-green); border-radius: 20px; padding: 20px;">
         <div class="metric-title" style="color: var(--text-secondary); margin-bottom: 12px;">Live Node Status</div>
         <div style="color: var(--accent-green); font-weight: bold; font-size: 18px; margin-bottom: 4px;">🟢 System Secure</div>
         <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
             Uptime: 99.9%<br>
-            Threats Blocked: <span style="color: var(--text-primary); font-weight:bold;">{{ stats.fraud_count | default(0) }}</span><br>
+            Threats Blocked: <span style="color: var(--text-primary); font-weight:bold;" data-stat="fraud_count">{{ stats.fraud_count | default(0) }}</span><br>
             Live Monitoring: Active
         </div>
     </div>
 
     <!-- ML Model Status Card -->
-    <div class="glass-card" style="border-top: 3px solid {% if model_info.loaded %}var(--accent-green){% else %}var(--accent-red){% endif %};">
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-top: 3px solid {% if model_info.loaded %}var(--accent-green){% else %}var(--accent-red){% endif %}; border-radius: 20px; padding: 20px;">
         <div class="metric-title" style="color: var(--text-secondary); margin-bottom: 12px;">🧠 ML Model</div>
         <div style="color: {% if model_info.loaded %}var(--accent-green){% else %}var(--accent-red){% endif %}; font-weight: bold; font-size: 16px; margin-bottom: 4px;">
             {% if model_info.loaded %}✅ Active (v{{ model_info.version }}){% else %}⚠️ Not Trained{% endif %}
@@ -76,38 +79,37 @@
 <!-- Charts Grid -->
 <div class="chart-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; padding: 0 24px; position: relative; z-index: 1;">
     
-    <!-- FIX: Dynamic Risk Gauge Text -->
-    <div class="glass-card" style="text-align: center;">
-        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 10px;">Current Network Risk</h3>
+    <!-- Dynamic Live Risk Gauge -->
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px; text-align: center;">
+        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 10px;">Current Network Risk (Rolling Live Stream)</h3>
         <div style="position: relative; height: 250px; width: 100%;">
             <canvas id="riskGauge"></canvas>
         </div>
         <div style="margin-top: -40px; position: relative; z-index: 2;">
-            <!-- The massive number now reads live from the database! -->
-            <div style="font-size: 32px; font-weight: bold; color: {% if chart_data.network_risk > 80 %}var(--accent-red){% elif chart_data.network_risk > 50 %}var(--accent-orange){% else %}var(--accent-green){% endif %};">
+            <div id="network-risk-value" style="font-size: 32px; font-weight: bold; color: {% if chart_data.network_risk > 80 %}var(--accent-red){% elif chart_data.network_risk > 50 %}var(--accent-orange){% else %}var(--accent-green){% endif %};">
                 {{ chart_data.network_risk }}%
             </div>
-            <div style="font-size: 14px; font-weight: 600; color: {% if chart_data.network_risk > 80 %}var(--accent-red){% elif chart_data.network_risk > 50 %}var(--accent-orange){% else %}var(--accent-green){% endif %};">
+            <div id="network-risk-label" style="font-size: 14px; font-weight: 600; color: {% if chart_data.network_risk > 80 %}var(--accent-red){% elif chart_data.network_risk > 50 %}var(--accent-orange){% else %}var(--accent-green){% endif %};">
                 {% if chart_data.network_risk > 80 %}Critical Risk Detected{% elif chart_data.network_risk > 50 %}Elevated Network Threat{% else %}Network Traffic Normal{% endif %}
             </div>
         </div>
     </div>
 
-    <div class="glass-card">
-        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 10px;">7-Day Fraud Trends</h3>
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
+        <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 10px;">7-Window Live Fraud Risk Trends</h3>
         <div style="position: relative; height: 250px; width: 100%;">
             <canvas id="fraudTrendChart"></canvas>
         </div>
     </div>
 
-    <div class="glass-card">
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
         <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 10px;">Attack Vectors</h3>
         <div style="position: relative; height: 250px; width: 100%;">
             <canvas id="fraudTypeChart"></canvas>
         </div>
     </div>
 
-    <div class="glass-card">
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
         <h3 style="font-size: 15px; color: var(--text-secondary); margin-bottom: 10px;">Alert Severity Distribution</h3>
         <div style="position: relative; height: 250px; width: 100%;">
             <canvas id="riskDistributionChart"></canvas>
@@ -119,9 +121,9 @@
 <div class="bottom-flex" style="display: flex; gap: 24px; padding: 24px; position: relative; z-index: 1;">
 
     <!-- Investigation Table -->
-    <div class="glass-card" style="flex: 2;">
+    <div class="glass-card" style="flex: 2; background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
         <div style="padding-bottom: 16px; border-bottom: 1px solid var(--bg-border); color: var(--accent-green); font-weight: bold; font-size: 18px; margin-bottom: 16px;">
-            Active Risk Interceptions
+            Active Risk Interceptions (Newest First)
         </div>
         
         {% if fraud_cases %}
@@ -141,19 +143,19 @@
                     <td style="padding: 16px 12px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05);">#{{ case.id }}</td>
                     <td style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">
                         {% if case.risk_score > 85 %}
-                            <span style="color: var(--accent-red); background: rgba(239, 68, 68, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Critical</span>
+                            <span style="color: var(--accent-red); background: rgba(239, 68, 68, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Critical ({{ case.risk_score }}%)</span>
                         {% elif case.risk_score > 60 %}
-                            <span style="color: var(--accent-orange); background: rgba(245, 158, 11, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">High</span>
+                            <span style="color: var(--accent-orange); background: rgba(245, 158, 11, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">High ({{ case.risk_score }}%)</span>
                         {% else %}
-                            <span style="color: var(--accent-green); background: rgba(71, 160, 74, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Review</span>
+                            <span style="color: var(--accent-green); background: rgba(71, 160, 74, 0.1); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">Review ({{ case.risk_score }}%)</span>
                         {% endif %}
                     </td>
                     <td style="padding: 16px 12px; color: var(--accent-blue); border-bottom: 1px solid rgba(255,255,255,0.05);">{{ case.type }}</td>
                     <td style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">R {{ case.loss }}</td>
                     <td style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                        <form action="{{ url_for('investigations.resolve_case', id=case.id) if 'investigations' in request.url_rule.endpoint else '#' }}" method="POST" style="display: inline;">
-                            <button type="submit" name="action" value="confirm" style="background: var(--accent-red); color: white; border: none; padding: 6px 12px; border-radius: 12px; cursor: pointer; font-size: 12px; transition: all 0.2s;">Investigate</button>
-                        </form>
+                        <a href="{{ url_for('investigations.investigation_detail', id=case.id) }}" style="background: var(--accent-red); color: white; text-decoration: none; padding: 6px 12px; border-radius: 12px; cursor: pointer; font-size: 12px; transition: all 0.2s; display: inline-block;">
+                            Investigate
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -171,7 +173,7 @@
     <div style="flex: 1; display: flex; flex-direction: column; gap: 24px;">
         
         <!-- XAI Panel -->
-        <div class="glass-card">
+        <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
             <h3 style="margin-top: 0; color: var(--accent-green); font-size: 16px;">AI Decision Rationale</h3>
             {% if latest_case.id != 'N/A' %}
             <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Analyzing Threat ID: #{{ latest_case.id }}</p>
@@ -195,15 +197,15 @@
             {% endif %}
         </div>
 
-        <!-- ENHANCED: Live Activity Ticker reads directly from the database -->
-        <div class="glass-card">
+        <!-- Live Activity Ticker reads directly from the database -->
+        <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
             <h3 style="margin-top: 0; color: var(--accent-orange); font-size: 16px; margin-bottom: 16px;">🔴 Live Activity Feed</h3>
-            <div id="activity-ticker" style="max-height: 200px; overflow: hidden; display: flex; flex-direction: column; gap: 8px;">
+            <div id="activity-ticker" style="max-height: 220px; overflow: hidden; display: flex; flex-direction: column; gap: 8px;">
                 {% if fraud_cases %}
                     {% for case in fraud_cases[:4] %}
                     <div style="padding: 8px; background: rgba(0,0,0,0.2); border-left: 3px solid {% if case.risk_score > 80 %}var(--accent-red){% else %}var(--accent-orange){% endif %}; font-size: 12px; color: var(--text-secondary); border-radius: 0 4px 4px 0;">
-                        <strong style="color: var(--text-primary);">{{ case.type }}</strong> flagged!<br>
-                        <span style="color: var(--accent-blue);">ID: #{{ case.id }}</span> | Risk Score: {{ case.risk_score }}
+                        <strong style="color: var(--text-primary);">{{ case.type }}</strong> ({{ case.account_number }})<br>
+                        <span style="color: var(--accent-blue);">ID: #{{ case.id }}</span> | Risk: <strong>{{ case.risk_score }}%</strong> | R {{ case.loss }}
                     </div>
                     {% endfor %}
                 {% else %}
@@ -215,23 +217,23 @@
         </div>
 
         <!-- Threat Heat Map -->
-        <div class="glass-card">
+        <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px;">
             <h3 style="margin-top: 0; color: var(--accent-orange); font-size: 16px; margin-bottom: 16px;">Live Threat Heat Map</h3>
             <div class="heat-map-item heat-pulse" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 8px;">
                 <div><span style="font-size: 16px;">🔴</span> Johannesburg</div>
-                <div style="font-weight: bold; color: var(--accent-red);">{{ (chart_data.network_risk // 8) + 2 }} Alerts</div>
+                <div style="font-weight: bold; color: var(--accent-red);">{{ chart_data.location_alerts['Johannesburg'] if chart_data.location_alerts is defined else ((chart_data.network_risk // 8) + 2) }} Alerts</div>
             </div>
             <div class="heat-map-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 8px;">
                 <div><span style="font-size: 16px;">🔴</span> Durban</div>
-                <div style="font-weight: bold; color: var(--accent-red);">{{ (chart_data.network_risk // 12) + 1 }} Alerts</div>
+                <div style="font-weight: bold; color: var(--accent-red);">{{ chart_data.location_alerts['Durban'] if chart_data.location_alerts is defined else ((chart_data.network_risk // 12) + 1) }} Alerts</div>
             </div>
             <div class="heat-map-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 8px;">
                 <div><span style="font-size: 16px;">🟡</span> Cape Town</div>
-                <div style="font-weight: bold; color: var(--accent-orange);">{{ (chart_data.network_risk // 15) }} Alerts</div>
+                <div style="font-weight: bold; color: var(--accent-orange);">{{ chart_data.location_alerts['Cape Town'] if chart_data.location_alerts is defined else (chart_data.network_risk // 15) }} Alerts</div>
             </div>
             <div class="heat-map-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
                 <div><span style="font-size: 16px;">🟢</span> Pretoria</div>
-                <div style="font-weight: bold; color: var(--accent-green);">Secured</div>
+                <div style="font-weight: bold; color: var(--accent-green);">{{ chart_data.location_alerts['Pretoria'] if chart_data.location_alerts is defined and chart_data.location_alerts['Pretoria'] > 0 else 'Secured' }}</div>
             </div>
         </div>
 
@@ -241,18 +243,20 @@
 <script>
     // 1. Particle Background Animation
     const particlesContainer = document.getElementById('particles');
-    for (let i = 0; i < 20; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = Math.random() * 100 + '%';
-        p.style.animationDuration = (Math.random() * 10 + 10) + 's';
-        p.style.animationDelay = Math.random() * 10 + 's';
-        particlesContainer.appendChild(p);
+    if (particlesContainer) {
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            p.style.animationDelay = Math.random() * 10 + 's';
+            particlesContainer.appendChild(p);
+        }
     }
 
     // 2. Initialize Data Charts
     document.addEventListener('DOMContentLoaded', () => {
-        if(typeof createRiskGauge === "function") {
+        if (typeof createRiskGauge === "function") {
             createRiskGauge('riskGauge', {{ chart_data.network_risk | default(0) }});
             
             createLineChart('fraudTrendChart', 
@@ -271,17 +275,6 @@
                 {{ chart_data.alert_severity | tojson }}
             );
         }
-
-        // 3. ENHANCEMENT: Live Ticking Clock
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('live-clock').innerText = now.toUTCString();
-        }, 1000);
-
-        // 4. ENHANCEMENT: Auto-Pilot Dashboard Refresh (Reloads data seamlessly every 15 seconds)
-        setTimeout(() => {
-            window.location.reload();
-        }, 15000);
     });
 </script>
 {% endblock %}

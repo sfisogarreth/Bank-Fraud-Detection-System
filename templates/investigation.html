@@ -5,10 +5,12 @@
 {% block content %}
 <div style="padding: 10px 24px 24px 24px; border-bottom: 1px solid var(--bg-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
     <h1 style="margin:0; font-size: 24px; color: var(--text-primary);">Fraud Investigation: Case #{{ transaction.id }}</h1>
-    <a href="{{ url_for('investigations.investigation_logs') }}" style="color: var(--accent-blue); text-decoration: none; font-size: 14px; border: 1px solid var(--accent-blue); padding: 8px 16px; border-radius: 20px; transition: all 0.2s;">← Back to Logs</a>
+    <a href="{{ url_for('investigations.investigations') }}" style="color: var(--accent-blue); text-decoration: none; font-size: 14px; border: 1px solid var(--accent-blue); padding: 8px 16px; border-radius: 20px; transition: all 0.2s;">← Back to Logs</a>
 </div>
 
-<div style="padding: 0 24px; max-width: 800px;">
+<div style="padding: 0 24px; max-width: 900px; display: flex; flex-direction: column; gap: 24px; margin-bottom: 40px;">
+    
+    <!-- TRANSACTION PROFILE CARD -->
     <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 32px;">
         
         <h3 style="color: var(--accent-green); margin-top: 0; margin-bottom: 24px; font-size: 18px;">Transaction Profile</h3>
@@ -31,7 +33,9 @@
 
             <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid var(--bg-border);">
                 <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Risk Score</div>
-                <div style="color: var(--accent-red); font-size: 18px; font-weight: 600;">{{ transaction.risk_score }}/100</div>
+                <div style="color: {% if transaction.risk_score > 75 %}var(--accent-red){% elif transaction.risk_score > 40 %}var(--accent-orange){% else %}var(--accent-green){% endif %}; font-size: 18px; font-weight: 600;">
+                    {{ transaction.risk_score }}%
+                </div>
             </div>
             
             <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid var(--bg-border); grid-column: span 2;">
@@ -40,9 +44,9 @@
             </div>
         </div>
 
-        <hr style="border: none; border-top: 1px solid var(--bg-border); margin-bottom: 24px;">
-
+        <!-- RESOLUTION FORM -->
         <form action="{{ url_for('investigations.resolve_case', id=transaction.id) }}" method="POST" style="display: flex; gap: 16px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             
             <button type="submit" name="action" value="confirm" style="flex: 1; background: var(--accent-red); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">
                 Confirm Fraud
@@ -55,5 +59,43 @@
         </form>
 
     </div>
+
+    <!-- EXPLAINABLE AI (XAI) REASONING & FEATURE ATTRIBUTION CARD -->
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 32px;">
+        <h3 style="color: var(--accent-green); margin-top: 0; margin-bottom: 16px; font-size: 18px; display: flex; align-items: center; gap: 10px;">
+            <span>🤖</span> AI Decision Rationale & Explainable AI (XAI)
+        </h3>
+        
+        <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px; border-left: 4px solid var(--accent-orange); margin-bottom: 24px; font-size: 14px; line-height: 1.6; color: var(--text-primary);">
+            <strong>Primary Risk Factor Analysis:</strong><br>
+            {{ transaction.explanation }}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; font-size: 13px; color: var(--text-secondary);">
+            <div style="background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 10px; border: 1px solid var(--bg-border);">
+                🌐 <strong style="color: var(--text-primary);">IP & Geolocation:</strong> {{ transaction.ip_region }}
+            </div>
+            <div style="background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 10px; border: 1px solid var(--bg-border);">
+                💻 <strong style="color: var(--text-primary);">Device Fingerprint:</strong> {{ transaction.device_os }}
+            </div>
+        </div>
+
+        <h4 style="font-size: 14px; color: var(--text-secondary); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Feature Weight Attribution</h4>
+        
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; color: var(--text-primary);">
+            {% for feature in transaction.xai_features %}
+            <li style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span>{{ feature.name }}</span>
+                    <span style="font-weight: bold; color: {% if feature.weight > 60 %}var(--accent-red){% else %}var(--accent-blue){% endif %};">{{ feature.weight }}%</span>
+                </div>
+                <div style="width: 100%; background: rgba(0,0,0,0.4); height: 8px; border-radius: 10px; overflow: hidden;">
+                    <div style="width: {{ feature.weight }}%; background: linear-gradient(90deg, var(--accent-blue), {% if feature.weight > 60 %}var(--accent-red){% else %}var(--accent-green){% endif %}); height: 100%; border-radius: 10px;"></div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
 </div>
 {% endblock %}

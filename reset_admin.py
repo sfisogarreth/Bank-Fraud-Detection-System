@@ -1,4 +1,3 @@
-import sys
 from werkzeug.security import generate_password_hash
 from database.connection import get_db_connection
 
@@ -8,19 +7,16 @@ def setup_admin():
     password = "Maybe12345&"
     role = "Admin"
 
-    # Generate password hash compatible with check_password_hash()
     hashed_pw = generate_password_hash(password)
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
-        # 1. Check if user already exists
         cursor.execute("SELECT id, email FROM users WHERE email = ?", (email,))
         user = cursor.fetchone()
 
         if user:
-            # Update existing user password and role, and unlock account
             cursor.execute(
                 """
                 UPDATE users 
@@ -31,7 +27,6 @@ def setup_admin():
             )
             print(f"🔄 Account already existed. Successfully RESET password for: {email}")
         else:
-            # Insert fresh admin user
             cursor.execute(
                 """
                 INSERT INTO users (username, email, password_hash, role, failed_attempts, account_locked)

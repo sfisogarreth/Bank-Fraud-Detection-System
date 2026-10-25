@@ -16,7 +16,6 @@ print("🚀 Starting MAZI Live Traffic Simulator...")
 print("Leave this running in the background to watch your dashboard update live!\n")
 
 while True:
-    
     payload = {
         "account_number": f"ACC-{random.randint(1000, 9999)}",
         "amount": round(random.uniform(50.0, 25000.0), 2),
@@ -27,7 +26,6 @@ while True:
     }
 
     try:
-        
         response = requests.post(API_URL, json=payload)
         
         if response.status_code == 201:
@@ -43,8 +41,7 @@ while True:
         else:
             print(f"⚠️ API Error: {response.status_code} - Reason: {response.text}")
             
-    except Exception as e:
-        
+    except Exception:
         print("Waiting for Flask server to start...")
 
     time.sleep(random.uniform(3.0, 7.0))

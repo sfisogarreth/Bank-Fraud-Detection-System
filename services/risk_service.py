@@ -1,28 +1,45 @@
+import logging
+
+logger = logging.getLogger("mazi_logger")
+
+# Attempt binding to native C++ compiled extension module
 try:
     import fast_math
     FAST_MATH_AVAILABLE = True
-except ImportError:
+    logger.info("Native C++ 'fast_math' extension successfully loaded and verified.")
+except ImportError as err:
     FAST_MATH_AVAILABLE = False
+    logger.warning(f"Native C++ 'fast_math' extension unavailable ({err}); falling back to Python math engine.")
 
 
-def calculate_risk_score(amount, transaction_count):
+def calculate_risk_score(amount: float, transaction_count: int) -> float:
+    """
+    Calculates velocity and amount risk using native C++ code if available, 
+    otherwise falls back to optimized Python arithmetic.
+    """
+    amt = float(amount)
+    count = int(transaction_count)
+
     if FAST_MATH_AVAILABLE:
-        return fast_math.calculate_risk_score(amount, transaction_count)
-    else:
-        base_risk = (amount / 1000) * 2.5
-        velocity_multiplier = 1 + (transaction_count * 0.15)
-        risk = base_risk * velocity_multiplier
-        return min(100, risk)
+        try:
+            return float(fast_math.calculate_risk_score(amt, count))
+        except Exception as exc:
+            logger.error(f"Runtime exception in C++ fast_math execution: {exc}")
+    
+    # Pure Python High-Performance Fallback Calculation
+    if amt < 0.0:
+        return 0.0
+    base_risk = (amt / 1000.0) * 2.5
+    velocity_multiplier = 1.0 + (float(count) * 0.15)
+    risk = base_risk * velocity_multiplier
+    return round(min(100.0, max(0.0, risk)), 2)
 
 
-def get_risk_score(amount, velocity):
-    if FAST_MATH_AVAILABLE:
-        return fast_math.calculate_risk_score(amount, velocity)
-    # Pure Python fallback
-    return min(100, (amount / 1000) * 2.5 * (1 + velocity * 0.15))
+def get_risk_score(amount: float, velocity: int) -> float:
+    """Convenience alias for calculate_risk_score."""
+    return calculate_risk_score(amount, velocity)
 
 
-# REMOVED: The module-level print that crashed on import
-# If you want to test, do it in __main__:
 if __name__ == '__main__':
-    print(calculate_risk_score(5000, 3))
+    test_score = calculate_risk_score(15000.0, 4)
+    print(f"Risk Service Diagnostic Result: {test_score}")

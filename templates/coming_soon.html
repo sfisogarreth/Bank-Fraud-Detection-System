@@ -3,36 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page_name }} — Coming Soon</title>
+    <title>{{ page_name | default('System Notice') }} — MAZI AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: #0f172a;
-            color: #e2e8f0;
-            font-family: 'Segoe UI', 'Inter', sans-serif;
+            background: #290E4A;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100vh;
             text-align: center;
+            padding: 20px;
         }
-        .container { padding: 2rem; }
+        .container {
+            background: rgba(66, 80, 166, 0.2);
+            backdrop-filter: blur(12px);
+            border: 1px solid #4250A6;
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
         .icon { font-size: 4rem; margin-bottom: 1rem; animation: float 3s ease-in-out infinite; }
-        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: #38bdf8; }
-        p { color: #94a3b8; font-size: 1.1rem; }
+        h1 { font-size: 2rem; margin-bottom: 0.75rem; color: #f8fafc; }
+        p { color: #cbd5e1; font-size: 1rem; line-height: 1.6; }
         .back {
             display: inline-block;
             margin-top: 2rem;
-            padding: 0.75rem 1.5rem;
-            background: #1e293b;
-            color: #38bdf8;
+            padding: 12px 28px;
+            background: #4250A6;
+            color: #ffffff;
             text-decoration: none;
-            border-radius: 8px;
-            border: 1px solid #334155;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
             transition: all 0.2s;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 14px;
         }
-        .back:hover { background: #334155; transform: translateY(-2px); }
+        .back:hover { background: #47A04A; transform: translateY(-2px); }
         
         @keyframes float {
             0%, 100% { transform: translateY(0); }
@@ -42,10 +54,20 @@
 </head>
 <body>
     <div class="container">
-        <div class="icon">🚧</div>
-        <h1>{{ page_name }}</h1>
-        <p>This feature is under development and will be available in a future release.</p>
-        <a href="{{ url_for('dashboard.dashboard') }}" class="back">← Back to Dashboard</a>
+        <div class="icon">
+            {% if 'Not Found' in (page_name or '') %}🔍{% elif 'Error' in (page_name or '') %}⚠️{% else %}🚧{% endif %}
+        </div>
+        <h1>{{ page_name | default('MAZI AI Notice') }}</h1>
+        <p>
+            {% if 'Not Found' in (page_name or '') %}
+                The requested resource, case record, or endpoint could not be located in the MAZI AI ledger.
+            {% elif 'Error' in (page_name or '') %}
+                An internal processing error occurred. Our telemetry logger has recorded this event.
+            {% else %}
+                This module is currently under active development and will be available in an upcoming release.
+            {% endif %}
+        </p>
+        <a href="{{ url_for('dashboard.dashboard') }}" class="back">← Return to Command Center</a>
     </div>
 </body>
 </html>

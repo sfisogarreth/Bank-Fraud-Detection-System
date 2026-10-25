@@ -1,25 +1,92 @@
 {% extends "base.html" %}
 
-{% block title %}Transaction Explorer{% endblock %}
+{% block title %}MAZI AI - Transaction Explorer{% endblock %}
 
 {% block content %}
 <div style="padding: 10px 24px 24px 24px; border-bottom: 1px solid var(--bg-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-    <h1 style="margin:0; font-size: 24px; color: var(--text-primary);">Transaction Explorer</h1>
-    <div style="font-size: 14px; color: var(--text-secondary);">
-        Live feed of all system transactions
+    <div>
+        <h1 style="margin:0; font-size: 24px; color: var(--text-primary);">💳 Transaction Explorer</h1>
+        <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">
+            Live telemetry feed and inspection of all processed banking transactions
+        </div>
     </div>
+    {% if transaction is defined and transaction %}
+    <a href="{{ url_for('transactions.transactions_list') }}" style="color: var(--accent-blue); text-decoration: none; font-size: 14px; border: 1px solid var(--accent-blue); padding: 8px 16px; border-radius: 20px;">
+        ← View All Transactions
+    </a>
+    {% endif %}
 </div>
 
 <div style="padding: 0 24px;">
+
+    {% if transaction is defined and transaction %}
+    <!-- SINGLE TRANSACTION VIEW (Fixes routes/transactions.py /transactions/<transaction_id>) -->
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 28px; margin-bottom: 24px;">
+        <h3 style="color: var(--accent-green); margin-top: 0; margin-bottom: 20px; font-size: 18px;">
+            Transaction Record: {{ transaction.transaction_id }}
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid var(--bg-border);">
+                <div style="color: var(--text-secondary); font-size: 12px;">Account Number</div>
+                <div style="font-size: 18px; font-weight: 700; margin-top: 4px;">{{ transaction.account_number }}</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid var(--bg-border);">
+                <div style="color: var(--text-secondary); font-size: 12px;">Amount</div>
+                <div style="font-size: 18px; font-weight: 700; color: var(--accent-blue); margin-top: 4px;">R {{ "{:,.2f}".format(transaction.amount|float) }}</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid var(--bg-border);">
+                <div style="color: var(--text-secondary); font-size: 12px;">Location</div>
+                <div style="font-size: 18px; font-weight: 700; margin-top: 4px;">{{ transaction.location }}</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px solid var(--bg-border);">
+                <div style="color: var(--text-secondary); font-size: 12px;">Risk Score & Status</div>
+                <div style="font-size: 18px; font-weight: 700; color: {% if transaction.risk_score > 75 %}var(--accent-red){% elif transaction.risk_score > 40 %}var(--accent-orange){% else %}var(--accent-green){% endif %}; margin-top: 4px;">
+                    {{ transaction.risk_score }}% ({{ transaction.status }})
+                </div>
+            </div>
+        </div>
+        {% if user_role in ['Admin', 'Manager'] %}
+        <div style="margin-top: 20px;">
+            <a href="{{ url_for('investigations.investigation_detail', id=transaction.id) }}" style="background: var(--accent-blue); color: white; text-decoration: none; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; display: inline-block;">
+                🔍 Open Full Investigation Case
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if transactions is defined and transactions %}
+    <!-- SEARCH & FILTER BAR -->
+    <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
+        <input
+            type="text"
+            id="txSearchInput"
+            placeholder="🔍 Search by Transaction ID, Account Number, or Location..."
+            style="flex: 2; min-width: 240px; padding: 12px 18px; border-radius: 12px; border: 1px solid var(--bg-border); background: rgba(30, 22, 52, 0.85); color: var(--text-primary); font-size: 14px; outline: none;"
+        >
+        <select
+            id="txStatusFilter"
+            style="flex: 1; min-width: 180px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--bg-border); background: #1e1634; color: var(--text-primary); font-size: 14px; outline: none;"
+        >
+            <option value="">All Statuses</option>
+            <option value="Flagged">Flagged</option>
+            <option value="Confirmed_Fraud">Confirmed Fraud</option>
+            <option value="Reviewing">Reviewing</option>
+            <option value="Safe">Safe</option>
+        </select>
+    </div>
+
     <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 0; overflow: hidden;">
         
-        <div style="padding: 20px 24px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.2);">
+        <div style="padding: 20px 24px; border-bottom: 1px solid var(--bg-border); background: rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center;">
             <div style="color: var(--accent-green); font-weight: bold; font-size: 18px;">
-                Recent Transactions
+                Recent Transactions ({{ transactions|length }})
+            </div>
+            <div style="font-size: 12px; color: var(--text-secondary);">
+                Click any Transaction ID to inspect case details
             </div>
         </div>
         
-        {% if transactions %}
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
@@ -35,22 +102,28 @@
                 </thead>
                 <tbody>
                     {% for tx in transactions %}
-                    <tr style="transition: background 0.2s;">
+                    <tr class="tx-row" data-status="{{ tx.status }}" style="transition: background 0.2s;">
                         <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            {% if user_role in ['Admin', 'Manager'] %}
                             <a href="{{ url_for('investigations.investigation_detail', id=tx.id) }}" style="color: #60a5fa; font-weight: 600; text-decoration: none;">
                                 {{ tx.transaction_id }}
                             </a>
+                            {% else %}
+                            <a href="{{ url_for('transactions.transaction_detail', transaction_id=tx.transaction_id) }}" style="color: #60a5fa; font-weight: 600; text-decoration: none;">
+                                {{ tx.transaction_id }}
+                            </a>
+                            {% endif %}
                         </td>
                         <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);">{{ tx.account_number }}</td>
-                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); font-weight: 600;">R {{ "%.2f"|format(tx.amount) }}</td>
+                        <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); font-weight: 600;">R {{ "{:,.2f}".format(tx.amount|float) }}</td>
                         <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);">{{ tx.location }}</td>
                         <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);">
                             {% if tx.risk_score > 75 %}
-                                <span style="color: var(--accent-red); font-weight: 700;">{{ tx.risk_score }}</span>
+                                <span style="color: var(--accent-red); font-weight: 700;">{{ tx.risk_score }}%</span>
                             {% elif tx.risk_score > 40 %}
-                                <span style="color: var(--accent-orange); font-weight: 700;">{{ tx.risk_score }}</span>
+                                <span style="color: var(--accent-orange); font-weight: 700;">{{ tx.risk_score }}%</span>
                             {% else %}
-                                <span style="color: var(--accent-green); font-weight: 700;">{{ tx.risk_score }}</span>
+                                <span style="color: var(--accent-green); font-weight: 700;">{{ tx.risk_score }}%</span>
                             {% endif %}
                         </td>
                         <td style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);">
@@ -70,12 +143,32 @@
                 </tbody>
             </table>
         </div>
-        {% else %}
-        <div style="text-align: center; padding: 48px 20px; color: var(--text-secondary);">
-            <div style="font-size: 32px; margin-bottom: 8px;">📭</div>
-            No transactions found in the database.
-        </div>
-        {% endif %}
     </div>
+    {% elif transaction is not defined %}
+    <div class="glass-card" style="background: rgba(66, 80, 166, 0.2); border-radius: 20px; text-align: center; padding: 48px 20px; color: var(--text-secondary);">
+        <div style="font-size: 32px; margin-bottom: 8px;">📭</div>
+        No transactions found in the database.
+    </div>
+    {% endif %}
+
 </div>
+
+<script>
+const searchInput = document.getElementById("txSearchInput");
+const statusFilter = document.getElementById("txStatusFilter");
+
+function filterTransactions() {
+    const query = (searchInput ? searchInput.value : "").toLowerCase();
+    const status = statusFilter ? statusFilter.value : "";
+
+    document.querySelectorAll(".tx-row").forEach(row => {
+        const matchesText = row.textContent.toLowerCase().includes(query);
+        const matchesStatus = !status || row.getAttribute("data-status") === status;
+        row.style.display = (matchesText && matchesStatus) ? "" : "none";
+    });
+}
+
+if (searchInput) searchInput.addEventListener("keyup", filterTransactions);
+if (statusFilter) statusFilter.addEventListener("change", filterTransactions);
+</script>
 {% endblock %}

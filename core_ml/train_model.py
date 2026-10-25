@@ -40,7 +40,8 @@ def train_and_save():
 
     # 2. Preprocessing
     print("⚙️ Preprocessing data...")
-    df = df.drop(columns=['nameOrig', 'nameDest', 'isFlaggedFraud'])
+    drop_cols = [c for c in ['nameOrig', 'nameDest', 'isFlaggedFraud'] if c in df.columns]
+    df = df.drop(columns=drop_cols)
     
     # One-Hot Encoding with drop_first=True (creates reference category)
     df_encoded = pd.get_dummies(df, columns=['type'], drop_first=True)
@@ -71,10 +72,10 @@ def train_and_save():
     )
 
     # 4. Train
-    print("🧠 Training Random Forest (this may take 2-3 minutes)...")
+    print("🧠 Training Random Forest Classifier...")
     model = RandomForestClassifier(
-        n_estimators=100,      # More trees = better accuracy
-        max_depth=15,          # Deeper = captures more patterns
+        n_estimators=100,      # Balanced trees for high performance
+        max_depth=15,          # Deep enough to capture complex fraud patterns
         min_samples_split=5,
         class_weight='balanced',
         n_jobs=-1,
